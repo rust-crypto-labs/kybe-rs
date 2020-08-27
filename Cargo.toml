@@ -1,0 +1,13 @@
+[package]
+name = "kybe-rs"
+version = "0.1.0"
+authors =  ["Stanislas Plessia <stplessia@gmail.com>"]
+edition = "2018"
+description = "Implementation of the key encapsulation mechanism (KEM) and public-key encryption (PKE) schemes of CRYSTALS-KYBER"
+license = "MIT"
+readme = "README.md"
+keywords = ["crypto", "lattice", "kyber", "pke", "kem"]
+categories = ["cryptography", "science"]
+repository = "https://github.com/rust-crypto-labs/kybe-rs"
+
+[dependencies]
