@@ -11,3 +11,4 @@ categories = ["cryptography", "science"]
 repository = "https://github.com/rust-crypto-labs/kybe-rs"
 
 [dependencies]
+sha3 = "0.9.1"
