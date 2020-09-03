@@ -63,27 +63,27 @@ pub fn Decode(bs: ByteArray) -> Poly {
     unimplemented!();
 }
 
-// Pseudo random function
+// Pseudo random function => SHAKE-256(s||b);
 fn PRF(){
     unimplemented!();
 }
 
-// Extendable output function
+// Extendable output function => SHAKE-128
 fn XOF(){
     unimplemented!();
 }
 
-// Hash function
+// Hash function => SHA3-256
 fn H(){
     unimplemented!();
 }
 
-// Hash function
+// Hash function => SHA3-512
 fn G(){
     unimplemented!();
 }
 
-// Key Derivation function
+// Key Derivation function => SHAKE-256
 fn KDF(){
     unimplemented!();
 }
