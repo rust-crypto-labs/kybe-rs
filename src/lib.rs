@@ -4,7 +4,21 @@ mod vector;
 use self::vector::{Dot, Vector};
 
 pub struct Poly {}
+#[derive(Debug)]
 pub struct ByteArray {}
+
+impl ByteArray {
+    pub fn random() -> Self {
+        unimplemented!()
+    }
+}
+
+impl PartialEq for ByteArray {
+    fn eq(&self, other: &Self) -> bool {
+        unimplemented!()
+    }
+}
+impl Eq for ByteArray {}
 
 ////////////// PKE /////////////////////////
 
@@ -14,12 +28,12 @@ pub fn kyber_cpapke_key_gen() -> (ByteArray, ByteArray) {
 }
 
 // Encryption : public key, message, random coins => ciphertext
-pub fn kyber_cpapke_enc(pk: ByteArray, m: ByteArray, r: ByteArray) -> ByteArray {
+pub fn kyber_cpapke_enc(pk: &ByteArray, m: &ByteArray, r: ByteArray) -> ByteArray {
     unimplemented!();
 }
 
 // Decryption : secret key, ciphertext => message
-pub fn kyber_cpapke_dec(sk: ByteArray, c: ByteArray) -> ByteArray {
+pub fn kyber_cpapke_dec(sk: &ByteArray, c: &ByteArray) -> ByteArray {
     unimplemented!();
 }
 
@@ -31,12 +45,12 @@ pub fn kyber_ccakem_key_gen() -> (ByteArray, ByteArray) {
 }
 
 // Encryption : public key  => ciphertext, Shared Key
-pub fn kyber_ccakem_enc(pk: ByteArray) -> (ByteArray, ByteArray) {
+pub fn kyber_ccakem_enc(pk: &ByteArray) -> (ByteArray, ByteArray) {
     unimplemented!();
 }
 
 // Decryption : secret key, ciphertext => Shared Key
-pub fn kyber_ccakem_dec(c: ByteArray, sk: ByteArray) -> ByteArray {
+pub fn kyber_ccakem_dec(c: &ByteArray, sk: &ByteArray) -> ByteArray {
     unimplemented!();
 }
 
