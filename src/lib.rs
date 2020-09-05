@@ -1,7 +1,9 @@
 extern crate sha3;
 
 mod vector;
+mod matrix;
 use self::vector::{Dot, Vector};
+use self::matrix::Matrix;
 
 pub struct Poly {}
 #[derive(Debug)]
@@ -57,22 +59,22 @@ pub fn kyber_ccakem_dec(c: &ByteArray, sk: &ByteArray) -> ByteArray {
 ////////////////// Utils ////////////////////
 
 // receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
-pub fn parse(bs: ByteArray) -> Poly {
+fn parse(bs: ByteArray) -> Poly {
     unimplemented!();
 }
 
 // Centered Binomial Distribution
-pub fn cbd(bs: ByteArray) -> Poly {
+fn cbd(bs: ByteArray) -> Poly {
     unimplemented!();
 }
 
 // Serialize Polynomial into ByteArray
-pub fn encode(p: Poly) -> ByteArray {
+fn encode(p: Poly) -> ByteArray {
     unimplemented!();
 }
 
 // Deserialize ByteArray into Polynomial
-pub fn decode(bs: ByteArray) -> Poly {
+fn decode(bs: ByteArray) -> Poly {
     unimplemented!();
 }
 
