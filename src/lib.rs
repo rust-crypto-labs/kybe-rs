@@ -3,6 +3,7 @@ extern crate sha3;
 mod polyvec;
 
 use polyvec::{vector::Vector, Polymatrix3329, Polynom3329, Polyvec3329};
+
 #[derive(Debug)]
 pub struct ByteArray {}
 
@@ -10,20 +11,52 @@ impl ByteArray {
     pub fn random() -> Self {
         unimplemented!()
     }
+
+    pub fn append(&self, _other: &Self) -> Self {
+        unimplemented!()
+    }
 }
 
 impl PartialEq for ByteArray {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         unimplemented!()
     }
 }
 impl Eq for ByteArray {}
 
+type KyberParams = (usize, usize, usize);
+
 ////////////// PKE /////////////////////////
 
 // Kyber CPAPKE Key Generation => (secret key, public key)
-pub fn kyber_cpapke_key_gen() -> (ByteArray, ByteArray) {
-    unimplemented!();
+pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
+    let (k, _, _) = params;
+    let d = ByteArray::random();
+    let (rho, sigma) = g(d);
+
+    let mut a = Polymatrix3329::init(k, k);
+
+    for i in 0..k {
+        for j in 0..k {
+            a[i][j] = parse(xof(&rho, j, i));
+        }
+    }
+
+    let (mut s, mut e) = (Polyvec3329::init(256), Polyvec3329::init(256));
+    for i in 0..k {
+        s[i] = cbd(prf(&sigma, i));
+        e[i] = cbd(prf(&sigma, k + i));
+    }
+    let s_hat = ntt(s);
+    let e_hat = ntt(e);
+
+    let t_hat = a.vec_mul(&s_hat).add(&e_hat);
+
+    // mod+ q  ?
+    let sk = encode(t_hat).append(&rho);
+    let pk = encode(s_hat);
+
+    (sk, pk)
 }
 
 // Encryption : public key, message, random coins => ciphertext
