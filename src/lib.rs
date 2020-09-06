@@ -1,7 +1,9 @@
 extern crate sha3;
 
+mod hash;
 mod polyvec;
 
+use hash::{sha3_256, sha3_512, shake_128, shake_256};
 use polyvec::{vector::Vector, Polymatrix3329, Polynom3329, Polyvec3329};
 
 #[derive(Debug)]
