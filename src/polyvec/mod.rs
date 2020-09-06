@@ -1,16 +1,16 @@
 mod ff;
 pub mod matrix;
-pub mod polynom;
+pub mod polynomial;
 pub mod polyvec;
 pub mod vector;
 
 use ff::{FiniteField, FiniteRing};
 use matrix::Matrix;
-use polynom::Polynom;
+use polynomial::Polynomial;
 use polyvec::Polyvec;
 use std::fmt::Debug;
 
-pub type Polynom3329 = Polynom<PrimeField3329>;
+pub type Polynom3329 = Polynomial<PrimeField3329>;
 pub type Polyvec3329 = Polyvec<Polynom3329>;
 pub type Polymatrix3329 = Matrix<Polyvec3329>;
 

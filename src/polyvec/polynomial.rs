@@ -2,12 +2,12 @@ use crate::polyvec::ff::{FiniteField, FiniteRing};
 use std::ops::{Index, IndexMut};
 
 #[derive(Clone)]
-pub struct Polynom<T: FiniteField> {
+pub struct Polynomial<T: FiniteField> {
     coefficients: Vec<T>,
     degree: usize,
 }
 
-impl<T> FiniteRing for Polynom<T>
+impl<T> FiniteRing for Polynomial<T>
 where
     T: FiniteField + Clone,
 {
@@ -71,7 +71,7 @@ where
     }
 }
 
-impl<T> Polynom<T>
+impl<T> Polynomial<T>
 where
     T: FiniteField + Clone,
 {
@@ -97,7 +97,7 @@ where
     }
 }
 
-impl<T> Index<usize> for Polynom<T>
+impl<T> Index<usize> for Polynomial<T>
 where
     T: FiniteField,
 {
@@ -108,7 +108,7 @@ where
     }
 }
 
-impl<T> IndexMut<usize> for Polynom<T>
+impl<T> IndexMut<usize> for Polynomial<T>
 where
     T: FiniteField,
 {
