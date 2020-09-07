@@ -12,7 +12,7 @@ where
     T: FiniteField + Clone,
 {
     fn is_zero(&self) -> bool {
-        self.equals(&Self::zero())
+        self.eq(&Self::zero())
     }
 
     fn dimension() -> usize {
@@ -45,8 +45,22 @@ where
         }
     }
 
-    fn add(&self, _other: &Self) -> Self {
-        unimplemented!()
+    fn add(&self, other: &Self) -> Self {
+        let mut degree = self.degree().max(other.degree);
+        let mut coefficients = vec![T::zero(); degree];
+        for (i, c) in self.coefficients.iter().enumerate() {
+            coefficients[i] = other.coefficients[i].add(c);
+        }
+
+        // Diminish degree if leading coefficient is zero
+        while degree > 0 && coefficients[degree - 1].eq(&T::zero()) {
+            degree -= 1;
+        }
+
+        Self {
+            coefficients,
+            degree,
+        }
     }
 
     fn sub(&self, other: &Self) -> Self {
@@ -58,10 +72,6 @@ where
         unimplemented!()
     }
 
-    fn equals(&self, _other: &Self) -> bool {
-        unimplemented!()
-    }
-
     fn into_bytes(self) -> Vec<u8> {
         unimplemented!()
     }
@@ -70,6 +80,25 @@ where
         unimplemented!()
     }
 }
+impl<T> PartialEq for Polynomial<T>
+where
+    T: FiniteField,
+{
+    fn eq(&self, other: &Self) -> bool {
+        if self.degree != other.degree {
+            return false;
+        }
+
+        for (i, c) in self.coefficients.iter().enumerate() {
+            if !c.eq(&other.coefficients[i]) {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+impl<T> Eq for Polynomial<T> where T: FiniteField {}
 
 impl<T> Polynomial<T>
 where
