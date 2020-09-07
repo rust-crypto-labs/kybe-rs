@@ -1,4 +1,4 @@
-use ::vector::{Vector, Dot};
+use crate::polyvec::vector::Vector;
 
 use std::{
     fmt::{self, Debug},
@@ -36,6 +36,10 @@ where
     /// Swap two columns of the matrix
     pub fn swap(&mut self, i: usize, j: usize) {
         self.columns.swap(i, j);
+    }
+
+    pub fn vec_mul(&self, _v: &T) -> &T {
+        unimplemented!();
     }
 }
 

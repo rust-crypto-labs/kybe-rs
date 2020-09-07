@@ -2,12 +2,14 @@ use kybe_rs;
 
 #[test]
 fn pke_keygen_call() {
-    kybe_rs::kyber_cpapke_key_gen();
+    let params = (2,0,0);
+    kybe_rs::kyber_cpapke_key_gen(params);
 }
 
 #[test]
 fn encrypt_then_decrypt() {
-    let (sk, pk) = kybe_rs::kyber_cpapke_key_gen();
+    let params = (2,0,0);
+    let (sk, pk) = kybe_rs::kyber_cpapke_key_gen(params);
 
     let m = kybe_rs::ByteArray::random();
     let r = kybe_rs::ByteArray::random();
