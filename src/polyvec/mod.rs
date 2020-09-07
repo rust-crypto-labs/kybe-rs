@@ -71,10 +71,6 @@ impl FiniteRing for PrimeField3329 {
         }
     }
 
-    fn equals(&self, other: &Self) -> bool {
-        self.sub(&other).is_zero()
-    }
-
     fn into_bytes(self) -> Vec<u8> {
         unimplemented!()
     }
@@ -93,3 +89,11 @@ impl FiniteField for PrimeField3329 {
         Ok(self.mul(&other.inv()?))
     }
 }
+
+impl PartialEq for PrimeField3329 {
+    fn eq(&self, other: &Self) -> bool {
+        self.val == other.val
+    }
+}
+
+impl Eq for PrimeField3329 {}

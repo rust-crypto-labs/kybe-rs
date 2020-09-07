@@ -8,7 +8,7 @@ pub trait FiniteField: Sized + FiniteRing {
 }
 
 // Finite Ring element
-pub trait FiniteRing: Sized {
+pub trait FiniteRing: Sized + Eq {
     /// Check if the element is the additive identity of the field
     fn is_zero(&self) -> bool;
 
@@ -32,9 +32,6 @@ pub trait FiniteRing: Sized {
 
     /// Defines the multiplication of two elements
     fn mul(&self, other: &Self) -> Self;
-
-    /// Checks if two elements are equal
-    fn equals(&self, other: &Self) -> bool;
 
     /// Converts the element to a bytes representation
     fn into_bytes(self) -> Vec<u8>;
