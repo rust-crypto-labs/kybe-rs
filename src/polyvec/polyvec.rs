@@ -8,15 +8,16 @@ pub struct Polyvec<T: FiniteRing> {
     dimension: usize,
 }
 
-impl<'a, T> Vector for Polyvec<T>
+impl<T> Vector for Polyvec<T>
 where
-    T: FiniteRing + Clone,
+    T: FiniteRing + Clone + Default,
 {
     fn basis_vector(&self, position: usize) -> Self {
         assert!(position < self.dimension());
 
-        let mut coefficients = vec![T::zero(); self.dimension()];
-        coefficients[position] = T::one();
+        let t: T = Default::default();
+        let mut coefficients = vec![t.zero(); self.dimension()];
+        coefficients[position] = t.one();
 
         Self {
             coefficients,
@@ -25,8 +26,9 @@ where
     }
 
     fn init(dimension: usize) -> Self {
+        let t: T = Default::default();
         Self {
-            coefficients: vec![T::zero(); dimension],
+            coefficients: vec![t.zero(); dimension],
             dimension,
         }
     }
@@ -56,35 +58,14 @@ where
     }
 }
 
-impl<T> Polyvec<T>
-where
-    T: FiniteRing + Clone,
-{
-    pub fn from_vec(coefficients: Vec<T>) -> Self {
-        let dimension = coefficients.len();
-        Self {
-            coefficients,
-            dimension,
-        }
-    }
-
-    pub fn mulf(&self, other: &T) -> Self {
-        let mut v = vec![];
-
-        for i in 0..self.dimension() {
-            v[i] = self.coefficients[i].mul(other)
-        }
-        Self::from_vec(v)
-    }
-}
-
 impl<T> Dot<T> for Polyvec<T>
 where
-    T: FiniteRing + Clone,
+    T: FiniteRing + Clone + Default,
 {
     fn dot(&self, other: &Self) -> T {
         assert_eq!(self.dimension(), other.dimension());
-        let mut v = T::zero();
+        let t: T = Default::default();
+        let mut v = t.zero();
 
         for i in 0..self.dimension() {
             v = v.add(&self.coefficients[i].mul(&other.coefficients[i]))
@@ -110,5 +91,39 @@ where
 {
     fn index_mut(&mut self, index: usize) -> &mut T {
         &mut self.coefficients[index]
+    }
+}
+
+impl<T> Default for Polyvec<T>
+where
+    T: FiniteRing,
+{
+    fn default() -> Self {
+        Self {
+            coefficients: vec![],
+            dimension: 0,
+        }
+    }
+}
+
+impl<T> Polyvec<T>
+where
+    T: FiniteRing + Clone + Default,
+{
+    pub fn from_vec(coefficients: Vec<T>) -> Self {
+        let dimension = coefficients.len();
+        Self {
+            coefficients,
+            dimension,
+        }
+    }
+
+    pub fn mulf(&self, other: &T) -> Self {
+        let mut v = vec![];
+
+        for i in 0..self.dimension() {
+            v[i] = self.coefficients[i].mul(other)
+        }
+        Self::from_vec(v)
     }
 }

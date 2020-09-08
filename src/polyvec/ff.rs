@@ -13,13 +13,13 @@ pub trait FiniteRing: Sized + Eq {
     fn is_zero(&self) -> bool;
 
     /// Returns the dimension of the finite field
-    fn dimension() -> usize;
+    fn dimension(&self) -> usize;
 
     /// Returns the additive identity of the field
-    fn zero() -> Self;
+    fn zero(&self) -> Self;
 
     /// Returns the multiplicative identity of the field
-    fn one() -> Self;
+    fn one(&self) -> Self;
 
     /// Returns the additive inverse of the element
     fn neg(&self) -> Self;

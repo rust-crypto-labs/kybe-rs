@@ -25,27 +25,20 @@ impl Debug for PrimeField3329 {
     }
 }
 
-impl PrimeField3329 {
-    #[inline]
-    fn order() -> usize {
-        3329
-    }
-}
-
 impl FiniteRing for PrimeField3329 {
     fn is_zero(&self) -> bool {
-        self.val == Self::zero().val
+        self.val == Self::zero(self).val
     }
 
-    fn dimension() -> usize {
+    fn dimension(&self) -> usize {
         1
     }
 
-    fn zero() -> Self {
+    fn zero(&self) -> Self {
         Self { val: 0 }
     }
 
-    fn one() -> Self {
+    fn one(&self) -> Self {
         Self { val: 1 }
     }
 
@@ -97,3 +90,16 @@ impl PartialEq for PrimeField3329 {
 }
 
 impl Eq for PrimeField3329 {}
+
+impl Default for PrimeField3329 {
+    fn default() -> Self {
+        Self { val: 0 }
+    }
+}
+
+impl PrimeField3329 {
+    #[inline]
+    fn order() -> usize {
+        3329
+    }
+}
