@@ -29,7 +29,7 @@ where
         let mut coefficients = vec![t.zero(); self.dimension()];
         coefficients[position] = t.one();
 
-        PolyVec {
+        Self {
             coefficients,
             dimension: self.dimension(),
         }
@@ -37,7 +37,7 @@ where
 
     fn init(dimension: usize) -> Self {
         let t: T = Default::default();
-        PolyVec {
+        Self {
             coefficients: vec![t.zero(); dimension],
             dimension,
         }
@@ -111,7 +111,7 @@ where
     T: FiniteRing,
 {
     fn default() -> Self {
-        PolyVec {
+        Self {
             coefficients: vec![],
             dimension: 0,
         }
@@ -124,7 +124,7 @@ where
 {
     pub fn from_vec(coefficients: Vec<T>) -> Self {
         let dimension = coefficients.len();
-        PolyVec {
+        Self {
             coefficients,
             dimension,
         }

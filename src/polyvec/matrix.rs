@@ -12,7 +12,7 @@ where
     columns: Vec<V>,
 
     trace: K,
-    
+
     /// Dimensions of the matrix
     dimensions: (usize, usize),
 }
@@ -55,7 +55,7 @@ where
     }
 
     /// Set a coefficient
-    pub fn set(&mut self, row: usize, column: usize, value: K) {
+    pub fn set(&mut self, _row: usize, _column: usize, _value: K) {
         unimplemented!()
     }
 

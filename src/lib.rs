@@ -5,8 +5,6 @@ mod hash;
 mod polyvec;
 mod primefield;
 
-use hash::{sha3_256, sha3_512, shake_128, shake_256};
-
 use polyvec::structures::RingModule;
 
 use polyvec::{Matrix, PolyVec, Polynomial};
