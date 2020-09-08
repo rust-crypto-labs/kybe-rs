@@ -1,31 +1,35 @@
-//use crate::polyvec::vector::Vector;
-use crate::polyvec::vector::Vector;
+use crate::polyvec::structures::{FiniteRing, RingModule};
 
-use std::{
-    fmt::{self, Debug},
-    ops::{Index, IndexMut},
-};
+use std::fmt::{self, Debug};
 
 /// A `Matrix` is a collection of `Vector`s
-pub struct Matrix<T: Vector> {
+pub struct Matrix<K, V>
+where
+    V: RingModule<K>,
+    K: FiniteRing + Default,
+{
     /// Internal representation as a list of elements of type `T`
-    columns: Vec<T>,
+    columns: Vec<V>,
 
+    trace: K,
+    
     /// Dimensions of the matrix
     dimensions: (usize, usize),
 }
 
-impl<T: Vector> Matrix<T>
+impl<K, V> Matrix<K, V>
 where
-    T: Clone,
+    V: RingModule<K> + Clone,
+    K: FiniteRing + Default,
 {
     /// Initialise an empty `Matrix`
     ///      - `col_num`: number of columns
     ///      - `col_dim`: number of rows
-    pub fn init(col_num: usize, col_dim: usize) -> Self {
+    pub fn init_matrix(col_num: usize, col_dim: usize) -> Self {
         Self {
-            columns: vec![T::init(col_dim); col_num],
+            columns: vec![V::init(col_dim); col_num],
             dimensions: (col_num, col_dim),
+            trace: Default::default(),
         }
     }
 
@@ -39,36 +43,41 @@ where
         self.columns.swap(i, j);
     }
 
-    pub fn vec_mul(&self, _v: &T) -> &T {
-        unimplemented!();
+    pub fn row(&self, index: usize) -> V {
+        let n = self.dimensions().0;
+        let mut t = V::init(n);
+
+        for i in 0..n {
+            t.set(i, self.columns[i].get(index));
+        }
+
+        t
+    }
+
+    /// Set a coefficient
+    pub fn set(&mut self, row: usize, column: usize, value: K) {
+        unimplemented!()
+    }
+
+    pub fn vec_mul(&self, v: &V) -> V {
+        assert!(v.dimension() == self.dimensions().0);
+
+        let n = self.dimensions().0;
+
+        let mut t: V = V::init(n);
+
+        for j in 0..n {
+            t.set(j, v.dot(&self.row(j)));
+        }
+
+        t
     }
 }
 
-/// Direct access to a column
-impl<T> Index<usize> for Matrix<T>
+impl<K, V> fmt::Debug for Matrix<K, V>
 where
-    T: Vector,
-{
-    type Output = T;
-
-    fn index(&self, index: usize) -> &T {
-        &self.columns[index]
-    }
-}
-
-/// Direct access to a column (mutable)
-impl<T> IndexMut<usize> for Matrix<T>
-where
-    T: Vector,
-{
-    fn index_mut(&mut self, index: usize) -> &mut T {
-        &mut self.columns[index]
-    }
-}
-
-impl<T> fmt::Debug for Matrix<T>
-where
-    T: Vector + Debug,
+    V: RingModule<K> + Debug,
+    K: FiniteRing + Default,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "{:?}\n", self.columns)

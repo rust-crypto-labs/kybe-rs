@@ -1,17 +1,27 @@
-use crate::polyvec::ff::FiniteRing;
-use crate::polyvec::vector::{Dot, Vector};
-use std::ops::{Index, IndexMut};
+use crate::polyvec::structures::{FiniteRing, RingModule};
 
 #[derive(Clone)]
-pub struct Polyvec<T: FiniteRing> {
+pub struct PolyVec<T: FiniteRing> {
     coefficients: Vec<T>,
     dimension: usize,
 }
 
-impl<T> Vector for Polyvec<T>
+impl<T> RingModule<T> for PolyVec<T>
 where
     T: FiniteRing + Clone + Default,
 {
+    fn get(&self, position: usize) -> T {
+        self.coefficients[position].clone()
+    }
+
+    fn set(&mut self, position: usize, value: T) {
+        self.coefficients[position] = value;
+    }
+
+    fn zero(&self) -> Self {
+        Self::init(self.dimension())
+    }
+
     fn basis_vector(&self, position: usize) -> Self {
         assert!(position < self.dimension());
 
@@ -19,7 +29,7 @@ where
         let mut coefficients = vec![t.zero(); self.dimension()];
         coefficients[position] = t.one();
 
-        Self {
+        PolyVec {
             coefficients,
             dimension: self.dimension(),
         }
@@ -27,10 +37,28 @@ where
 
     fn init(dimension: usize) -> Self {
         let t: T = Default::default();
-        Self {
+        PolyVec {
             coefficients: vec![t.zero(); dimension],
             dimension,
         }
+    }
+
+    fn is_zero(&self) -> bool {
+        if self.dimension == 0 {
+            true
+        } else {
+            for c in self.coefficients.iter() {
+                if !c.is_zero() {
+                    return false;
+                }
+            }
+            true
+        }
+    }
+
+    fn neg(&self) -> Self {
+        let t = Self::init(self.dimension());
+        t.sub(self)
     }
 
     fn dimension(&self) -> usize {
@@ -56,12 +84,7 @@ where
         }
         Self::from_vec(v)
     }
-}
 
-impl<T> Dot<T> for Polyvec<T>
-where
-    T: FiniteRing + Clone + Default,
-{
     fn dot(&self, other: &Self) -> T {
         assert_eq!(self.dimension(), other.dimension());
         let t: T = Default::default();
@@ -72,58 +95,38 @@ where
         }
         v
     }
-}
 
-impl<T> Index<usize> for Polyvec<T>
-where
-    T: FiniteRing,
-{
-    type Output = T;
-
-    fn index(&self, index: usize) -> &T {
-        &self.coefficients[index]
-    }
-}
-
-impl<T> IndexMut<usize> for Polyvec<T>
-where
-    T: FiniteRing,
-{
-    fn index_mut(&mut self, index: usize) -> &mut T {
-        &mut self.coefficients[index]
-    }
-}
-
-impl<T> Default for Polyvec<T>
-where
-    T: FiniteRing,
-{
-    fn default() -> Self {
-        Self {
-            coefficients: vec![],
-            dimension: 0,
-        }
-    }
-}
-
-impl<T> Polyvec<T>
-where
-    T: FiniteRing + Clone + Default,
-{
-    pub fn from_vec(coefficients: Vec<T>) -> Self {
-        let dimension = coefficients.len();
-        Self {
-            coefficients,
-            dimension,
-        }
-    }
-
-    pub fn mulf(&self, other: &T) -> Self {
+    fn mulf(&self, other: &T) -> Self {
         let mut v = vec![];
 
         for i in 0..self.dimension() {
             v[i] = self.coefficients[i].mul(other)
         }
         Self::from_vec(v)
+    }
+}
+
+impl<T> Default for PolyVec<T>
+where
+    T: FiniteRing,
+{
+    fn default() -> Self {
+        PolyVec {
+            coefficients: vec![],
+            dimension: 0,
+        }
+    }
+}
+
+impl<T> PolyVec<T>
+where
+    T: FiniteRing + Clone + Default,
+{
+    pub fn from_vec(coefficients: Vec<T>) -> Self {
+        let dimension = coefficients.len();
+        PolyVec {
+            coefficients,
+            dimension,
+        }
     }
 }

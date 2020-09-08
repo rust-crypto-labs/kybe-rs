@@ -1,4 +1,4 @@
-use crate::polyvec::ff::{FiniteField, FiniteRing};
+use crate::polyvec::structures::{FiniteField, FiniteRing};
 use std::{
     convert::TryInto,
     ops::{Index, IndexMut},
@@ -26,10 +26,6 @@ where
 {
     fn is_zero(&self) -> bool {
         self.degree() < 0
-    }
-
-    fn dimension(&self) -> usize {
-        self.n
     }
 
     fn zero(&self) -> Self {
@@ -151,15 +147,8 @@ where
             n: self.n,
         }
     }
-
-    fn into_bytes(self) -> Vec<u8> {
-        unimplemented!()
-    }
-
-    fn from_bytes(_bytes: &[u8]) -> Result<Self, String> {
-        unimplemented!()
-    }
 }
+
 impl<T> PartialEq for Polynomial<T>
 where
     T: FiniteField + Default,
@@ -186,6 +175,10 @@ where
 {
     pub fn init(n: usize) -> Self {
         Self::from_vec(vec![], n)
+    }
+
+    fn dimension(&self) -> usize {
+        self.n
     }
 
     pub fn from_vec(coefficients: Vec<T>, n: usize) -> Self {

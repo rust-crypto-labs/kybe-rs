@@ -1,33 +1,23 @@
 extern crate sha3;
 
+mod bytearray;
 mod hash;
 mod polyvec;
+mod primefield;
 
 use hash::{sha3_256, sha3_512, shake_128, shake_256};
-use polyvec::{Polymatrix3329, Polynom3329, Polyvec3329};
 
-use polyvec::vector::Vector;
+use polyvec::structures::RingModule;
 
-#[derive(Debug)]
-pub struct ByteArray {}
+use polyvec::{Matrix, PolyVec, Polynomial};
+use primefield::PrimeField3329;
 
-impl ByteArray {
-    pub fn random() -> Self {
-        unimplemented!()
-    }
+pub use bytearray::ByteArray;
 
-    pub fn append(&self, _other: &Self) -> Self {
-        unimplemented!()
-    }
-}
-
-impl PartialEq for ByteArray {
-    fn eq(&self, _other: &Self) -> bool {
-        unimplemented!()
-    }
-}
-impl Eq for ByteArray {}
-
+pub type F3329 = PrimeField3329;
+pub type Poly3329 = Polynomial<F3329>;
+pub type PolyVec3329 = PolyVec<Poly3329>;
+pub type PolyMatrix3329 = Matrix<Poly3329, PolyVec3329>;
 type KyberParams = (usize, usize, usize);
 
 ////////////// PKE /////////////////////////
@@ -38,18 +28,18 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let d = ByteArray::random();
     let (rho, sigma) = g(d);
 
-    let mut a = Polymatrix3329::init(k, k);
+    let mut a = PolyMatrix3329::init_matrix(k, k);
 
     for i in 0..k {
         for j in 0..k {
-            a[i][j] = parse(xof(&rho, j, i));
+            a.set(j, i, parse(xof(&rho, j, i)));
         }
     }
 
-    let (mut s, mut e) = (Polyvec3329::init(256), Polyvec3329::init(256));
+    let (mut s, mut e) = (PolyVec3329::init(256), PolyVec3329::init(256));
     for i in 0..k {
-        s[i] = cbd(prf(&sigma, i));
-        e[i] = cbd(prf(&sigma, k + i));
+        s.set(i, cbd(prf(&sigma, i)));
+        e.set(i, cbd(prf(&sigma, k + i)));
     }
     let s_hat = ntt(s);
     let e_hat = ntt(e);
@@ -93,22 +83,22 @@ pub fn kyber_ccakem_dec(_c: &ByteArray, _sk: &ByteArray) -> ByteArray {
 ////////////////// Utils ////////////////////
 
 // receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
-fn parse(_bs: ByteArray) -> Polynom3329 {
+fn parse(_bs: ByteArray) -> Poly3329 {
     unimplemented!();
 }
 
 // Centered Binomial Distribution
-fn cbd(_bs: ByteArray) -> Polynom3329 {
+fn cbd(_bs: ByteArray) -> Poly3329 {
     unimplemented!();
 }
 
 // Serialize Polynomial into ByteArray
-fn encode(_p: Polyvec3329) -> ByteArray {
+fn encode(_p: PolyVec3329) -> ByteArray {
     unimplemented!();
 }
 
 // Deserialize ByteArray into Polynomial
-fn decode(_bs: ByteArray) -> Polyvec3329 {
+fn decode(_bs: ByteArray) -> PolyVec3329 {
     unimplemented!();
 }
 
@@ -138,12 +128,12 @@ fn kdf() {
 }
 
 // Number theoretic Transform
-fn ntt(_p: Polyvec3329) -> Polyvec3329 {
+fn ntt(_p: PolyVec3329) -> PolyVec3329 {
     unimplemented!();
 }
 
 // Reverse NTT
-fn rev_ntt(_p_hat: Polyvec3329) -> Polyvec3329 {
+fn rev_ntt(_p_hat: PolyVec3329) -> PolyVec3329 {
     unimplemented!();
 }
 
