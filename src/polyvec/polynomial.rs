@@ -174,7 +174,7 @@ where
     T: FiniteField + Clone + Default,
 {
     pub fn init(n: usize) -> Self {
-        Self::from_vec(vec![], n)
+        Self::from_vec(vec![Default::default()], n)
     }
 
     fn dimension(&self) -> usize {
@@ -184,7 +184,7 @@ where
     pub fn from_vec(coefficients: Vec<T>, n: usize) -> Self {
         // For now we make it an error to input more coefficients than we can handle
         // In the future maybe we want to handle this more gracefully
-        assert!(coefficients.len() < n);
+        assert!(coefficients.len() <= n);
 
         let mut degree = n.min(coefficients.len()).try_into().unwrap();
 
@@ -240,6 +240,6 @@ where
     T: FiniteField + Clone + Default,
 {
     fn default() -> Self {
-        Self::init(0)
+        Self::init(1)
     }
 }

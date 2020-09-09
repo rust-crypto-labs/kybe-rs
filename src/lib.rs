@@ -1,5 +1,7 @@
 extern crate sha3;
 
+use byteorder::BigEndian;
+
 mod bytearray;
 mod hash;
 mod polyvec;
@@ -22,22 +24,26 @@ type KyberParams = (usize, usize, usize);
 
 // Kyber CPAPKE Key Generation => (secret key, public key)
 pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
+    let D_SIZE = 4;
+
     let (k, _, _) = params;
-    let d = ByteArray::random();
+    let d = ByteArray::random(D_SIZE);
     let (rho, sigma) = g(d);
 
     let mut a = PolyMatrix3329::init_matrix(k, k);
 
+    let XOF_LEN = 4;
     for i in 0..k {
         for j in 0..k {
-            a.set(j, i, parse(xof(&rho, j, i)));
+            a.set(j, i, parse(xof(&rho, j, i, XOF_LEN)));
         }
     }
 
     let (mut s, mut e) = (PolyVec3329::init(256), PolyVec3329::init(256));
+    let PRF_LEN = 4;
     for i in 0..k {
-        s.set(i, cbd(prf(&sigma, i)));
-        e.set(i, cbd(prf(&sigma, k + i)));
+        s.set(i, cbd(prf(&sigma, i, PRF_LEN)));
+        e.set(i, cbd(prf(&sigma, k + i, PRF_LEN)));
     }
     let s_hat = ntt(s);
     let e_hat = ntt(e);
@@ -101,23 +107,72 @@ fn decode(_bs: ByteArray) -> PolyVec3329 {
 }
 
 // Pseudo random function => SHAKE-256(s||b);
-fn prf(_s: &ByteArray, _b: usize) -> ByteArray {
-    unimplemented!();
+fn prf(s: &ByteArray, b: usize, len: usize) -> ByteArray {
+    let b_as_bytes = ByteArray {
+        data: (b as u64).to_be_bytes().to_vec(),
+    };
+    let input = s.clone().append(&b_as_bytes);
+    ByteArray {
+        data: hash::shake_256(input.data, len),
+    }
 }
 
-// Extendable output function => SHAKE-128
-fn xof(_r: &ByteArray, _j: usize, _i: usize) -> ByteArray {
-    unimplemented!();
+// Extendable output function => SHAKE-128(rho||j||i) with output of lenght len
+fn xof(r: &ByteArray, j: usize, i: usize, len: usize) -> ByteArray {
+    let i_as_bytes = ByteArray {
+        data: (i as u64).to_be_bytes().to_vec(),
+    };
+    let j_as_bytes = ByteArray {
+        data: (j as u64).to_be_bytes().to_vec(),
+    };
+
+    let input = r.clone().append(&j_as_bytes).append(&i_as_bytes);
+    ByteArray {
+        data: hash::shake_128(input.data, len),
+    }
+}
+
+// From https://doc.rust-lang.org/nomicon/borrow-splitting.html
+pub fn split_at_mut<T>(v: &mut Vec<T>, mid: usize) -> (&mut [T], &mut [T]) {
+    let len = v.len();
+    let ptr = v.as_mut_ptr();
+
+    unsafe {
+        assert!(mid <= len);
+
+        (
+            std::slice::from_raw_parts_mut(ptr, mid),
+            std::slice::from_raw_parts_mut(ptr.add(mid), len - mid),
+        )
+    }
 }
 
 // Hash function => SHA3-256
-fn h(_r: ByteArray) -> (ByteArray, ByteArray) {
-    unimplemented!();
+fn h(r: ByteArray) -> (ByteArray, ByteArray) {
+    let mut hash = hash::sha3_256(r.data);
+    let (part0, part1) = split_at_mut(&mut hash, 16);
+    (
+        ByteArray {
+            data: part0.to_vec(),
+        },
+        ByteArray {
+            data: part1.to_vec(),
+        },
+    )
 }
 
 // Hash function => SHA3-512
-fn g(_r: ByteArray) -> (ByteArray, ByteArray) {
-    unimplemented!();
+fn g(r: ByteArray) -> (ByteArray, ByteArray) {
+    let mut hash = hash::sha3_512(r.data);
+    let (part0, part1) = split_at_mut(&mut hash, 32);
+    (
+        ByteArray {
+            data: part0.to_vec(),
+        },
+        ByteArray {
+            data: part1.to_vec(),
+        },
+    )
 }
 
 // Key Derivation function => SHAKE-256

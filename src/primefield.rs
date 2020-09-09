@@ -2,7 +2,7 @@ use crate::polyvec::structures::FiniteField;
 
 use std::fmt::Debug;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct PrimeField3329 {
     val: usize,
 }

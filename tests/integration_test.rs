@@ -11,8 +11,11 @@ fn encrypt_then_decrypt() {
     let params = (2, 0, 0);
     let (sk, pk) = kybe_rs::kyber_cpapke_key_gen(params);
 
-    let m = kybe_rs::ByteArray::random();
-    let r = kybe_rs::ByteArray::random();
+    let M_SIZE = 4;
+    let R_SIZE = 4;
+
+    let m = kybe_rs::ByteArray::random(M_SIZE);
+    let r = kybe_rs::ByteArray::random(R_SIZE);
 
     let enc = kybe_rs::kyber_cpapke_enc(&pk, &m, r);
     let dec = kybe_rs::kyber_cpapke_dec(&sk, &enc);

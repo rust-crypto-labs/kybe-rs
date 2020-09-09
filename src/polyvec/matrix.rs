@@ -1,12 +1,12 @@
-use crate::polyvec::structures::{FiniteRing, RingModule};
 use crate::polyvec::polyvec::PolyVec;
+use crate::polyvec::structures::{FiniteRing, RingModule};
 
 use std::fmt::{self, Debug};
 
 /// A `Matrix` is a collection of `Vector`s
 pub struct Matrix<K>
 where
-    K: FiniteRing + Default,
+    K: FiniteRing + Clone + Default,
 {
     /// Internal representation as a list of elements of type `T`
     coefficients: Vec<K>,
@@ -17,14 +17,14 @@ where
 
 impl<K> Matrix<K>
 where
-    K: FiniteRing + Default + Clone,
+    K: FiniteRing + Clone + Default,
 {
     /// Initialise an empty `Matrix`
     ///      - `col_num`: number of columns
     ///      - `col_dim`: number of rows
     pub fn init_matrix(col_num: usize, col_dim: usize) -> Self {
         Self {
-            coefficients: vec![Default::default(); col_num*col_dim],
+            coefficients: vec![Default::default(); col_num * col_dim],
             dimensions: (col_num, col_dim),
         }
     }
@@ -39,7 +39,7 @@ where
         let mut t = PolyVec::<K>::init(cols);
 
         for i in 0..cols {
-            t.set(i, self.get(index*rows,i));
+            t.set(i, self.coefficients[index * rows + i].clone());
         }
 
         t
@@ -50,7 +50,7 @@ where
         let mut t = PolyVec::<K>::init(rows);
 
         for i in 0..rows {
-            t.set(i, self.get(index*i,cols));
+            t.set(i, self.coefficients[index * i + cols].clone());
         }
 
         t
@@ -76,7 +76,7 @@ where
         let (cols, rows) = self.dimensions();
         assert!(v.dimension() == rows);
 
-        let mut t= PolyVec::<K>::init(cols);
+        let mut t = PolyVec::<K>::init(cols);
 
         for j in 0..cols {
             t.set(j, v.dot(&self.row(j)));
@@ -88,7 +88,7 @@ where
 
 impl<K> fmt::Debug for Matrix<K>
 where
-    K: FiniteRing + Default + Debug,
+    K: FiniteRing + Clone + Default + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "{:?}\n", self.coefficients)

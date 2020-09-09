@@ -13,3 +13,5 @@ repository = "https://github.com/rust-crypto-labs/kybe-rs"
 [dependencies]
 sha3 = "0.8.0"
 digest = "0.9.0"
+rand = "0.7.3"
+byteorder = "1.3.4"
