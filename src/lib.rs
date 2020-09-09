@@ -15,7 +15,7 @@ pub use bytearray::ByteArray;
 pub type F3329 = PrimeField3329;
 pub type Poly3329 = Polynomial<F3329>;
 pub type PolyVec3329 = PolyVec<Poly3329>;
-pub type PolyMatrix3329 = Matrix<Poly3329, PolyVec3329>;
+pub type PolyMatrix3329 = Matrix<Poly3329>;
 type KyberParams = (usize, usize, usize);
 
 ////////////// PKE /////////////////////////

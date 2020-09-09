@@ -1,35 +1,31 @@
 use crate::polyvec::structures::{FiniteRing, RingModule};
+use crate::polyvec::polyvec::PolyVec;
 
 use std::fmt::{self, Debug};
 
 /// A `Matrix` is a collection of `Vector`s
-pub struct Matrix<K, V>
+pub struct Matrix<K>
 where
-    V: RingModule<K>,
     K: FiniteRing + Default,
 {
     /// Internal representation as a list of elements of type `T`
-    columns: Vec<V>,
-
-    trace: K,
+    coefficients: Vec<K>,
 
     /// Dimensions of the matrix
     dimensions: (usize, usize),
 }
 
-impl<K, V> Matrix<K, V>
+impl<K> Matrix<K>
 where
-    V: RingModule<K> + Clone,
-    K: FiniteRing + Default,
+    K: FiniteRing + Default + Clone,
 {
     /// Initialise an empty `Matrix`
     ///      - `col_num`: number of columns
     ///      - `col_dim`: number of rows
     pub fn init_matrix(col_num: usize, col_dim: usize) -> Self {
         Self {
-            columns: vec![V::init(col_dim); col_num],
+            coefficients: vec![Default::default(); col_num*col_dim],
             dimensions: (col_num, col_dim),
-            trace: Default::default(),
         }
     }
 
@@ -38,35 +34,51 @@ where
         self.dimensions
     }
 
-    /// Swap two columns of the matrix
-    pub fn swap(&mut self, i: usize, j: usize) {
-        self.columns.swap(i, j);
+    pub fn row(&self, index: usize) -> PolyVec<K> {
+        let (cols, rows) = self.dimensions();
+        let mut t = PolyVec::<K>::init(cols);
+
+        for i in 0..cols {
+            t.set(i, self.get(index*rows,i));
+        }
+
+        t
     }
 
-    pub fn row(&self, index: usize) -> V {
-        let n = self.dimensions().0;
-        let mut t = V::init(n);
+    pub fn column(&self, index: usize) -> PolyVec<K> {
+        let (cols, rows) = self.dimensions();
+        let mut t = PolyVec::<K>::init(rows);
 
-        for i in 0..n {
-            t.set(i, self.columns[i].get(index));
+        for i in 0..rows {
+            t.set(i, self.get(index*i,cols));
         }
 
         t
     }
 
     /// Set a coefficient
-    pub fn set(&mut self, _row: usize, _column: usize, _value: K) {
-        unimplemented!()
+    pub fn set(&mut self, row: usize, column: usize, value: K) {
+        let (cols, rows) = self.dimensions();
+        assert!((column < cols) && (row < rows));
+
+        self.coefficients[row * rows + column] = value;
     }
 
-    pub fn vec_mul(&self, v: &V) -> V {
-        assert!(v.dimension() == self.dimensions().0);
+    /// Get a coefficient
+    pub fn get(&self, row: usize, column: usize) -> K {
+        let (cols, rows) = self.dimensions();
+        assert!((column < cols) && (row < rows));
 
-        let n = self.dimensions().0;
+        self.coefficients[row * rows + column].clone()
+    }
 
-        let mut t: V = V::init(n);
+    pub fn vec_mul(&self, v: &PolyVec<K>) -> PolyVec<K> {
+        let (cols, rows) = self.dimensions();
+        assert!(v.dimension() == rows);
 
-        for j in 0..n {
+        let mut t= PolyVec::<K>::init(cols);
+
+        for j in 0..cols {
             t.set(j, v.dot(&self.row(j)));
         }
 
@@ -74,12 +86,11 @@ where
     }
 }
 
-impl<K, V> fmt::Debug for Matrix<K, V>
+impl<K> fmt::Debug for Matrix<K>
 where
-    V: RingModule<K> + Debug,
-    K: FiniteRing + Default,
+    K: FiniteRing + Default + Debug,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{:?}\n", self.columns)
+        writeln!(f, "{:?}\n", self.coefficients)
     }
 }
