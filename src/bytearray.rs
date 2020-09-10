@@ -18,6 +18,13 @@ impl ByteArray {
         data.extend(other.data.iter().cloned());
         Self { data }
     }
+
+    pub fn get_bit(&self, pos: usize) -> bool {
+        let byte_index = pos >> 3;
+        let bit_in_byte = pos & 0xf;
+        let mask = 2 << bit_in_byte;
+        !(self.data[byte_index] & mask == 0)
+    }
 }
 
 impl PartialEq for ByteArray {

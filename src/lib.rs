@@ -1,7 +1,5 @@
 extern crate sha3;
 
-use byteorder::BigEndian;
-
 mod bytearray;
 mod hash;
 mod polyvec;
@@ -33,9 +31,12 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let mut a = PolyMatrix3329::init_matrix(k, k);
 
     let XOF_LEN = 4;
+    let PARSE_N = 4;
+    let PARSE_Q = 4;
+    
     for i in 0..k {
         for j in 0..k {
-            a.set(j, i, parse(xof(&rho, j, i, XOF_LEN)));
+            a.set(j, i, parse(xof(&rho, j, i, XOF_LEN), PARSE_N, PARSE_Q));
         }
     }
 
@@ -87,8 +88,20 @@ pub fn kyber_ccakem_dec(_c: &ByteArray, _sk: &ByteArray) -> ByteArray {
 ////////////////// Utils ////////////////////
 
 // receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
-fn parse(_bs: ByteArray) -> Poly3329 {
-    unimplemented!();
+// Algorithm 1 p. 7
+fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
+    let mut i = 0;
+    let mut j = 0;
+    let mut coeffs = vec![F3329::default(); degree];
+    while j < degree {
+        let d = (bs.data[i] as usize) + (bs.data[i+1] as usize) << 8;
+        if d < 19 * q {
+            coeffs[j] = F3329::from_int(d);
+            j += 1;
+        }
+        i += 2;
+    }
+    Poly3329::from_vec(coeffs, degree)
 }
 
 // Centered Binomial Distribution

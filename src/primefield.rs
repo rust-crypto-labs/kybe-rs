@@ -79,4 +79,8 @@ impl PrimeField3329 {
     fn order() -> usize {
         3329
     }
+
+    pub fn from_int(x: usize) -> Self {
+        Self {val: x }
+    }
 }
