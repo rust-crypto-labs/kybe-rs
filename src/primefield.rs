@@ -30,9 +30,7 @@ impl FiniteField for PrimeField3329 {
     }
 
     fn neg(&self) -> Self {
-        Self {
-            val: (Self::order() as i64) - &self.val,
-        }
+        self.zero().sub(self)
     }
 
     fn add(&self, other: &Self) -> Self {
@@ -42,7 +40,9 @@ impl FiniteField for PrimeField3329 {
     }
 
     fn sub(&self, other: &Self) -> Self {
-        self.add(&other.neg())
+        Self {
+            val: (self.val - other.val) % (Self::order() as i64),
+        }
     }
 
     fn mul(&self, other: &Self) -> Self {
@@ -81,6 +81,6 @@ impl PrimeField3329 {
     }
 
     pub fn from_int(x: i64) -> Self {
-        Self { val: x }
+        Self { val: x % (Self::order() as i64) }
     }
 }

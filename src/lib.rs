@@ -66,8 +66,8 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let prf_len = 64 * params.eta;
 
     for i in 0..k {
-        s.set(i, cbd(prf(&sigma, i, prf_len), params.eta, params.q));
-        e.set(i, cbd(prf(&sigma, k + i, prf_len), params.eta, params.q));
+        s.set(i, cbd(prf(&sigma, i, prf_len), params.eta));
+        e.set(i, cbd(prf(&sigma, k + i, prf_len), params.eta));
     }
     let s_hat = ntt(s);
     let e_hat = ntt(e);
@@ -112,11 +112,11 @@ pub fn kyber_ccakem_dec(_c: &ByteArray, _sk: &ByteArray) -> ByteArray {
 
 // receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
 // Algorithm 1 p. 7
-fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
+fn parse(bs: ByteArray, n: usize, q: usize) -> Poly3329 {
     let mut i = 0;
     let mut j = 0;
-    let mut coeffs = vec![F3329::default(); degree];
-    while j < degree {
+    let mut coeffs = vec![F3329::default(); n];
+    while j < n {
         let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
         if d < 19 * q {
             coeffs[j] = F3329::from_int(d.try_into().unwrap());
@@ -124,13 +124,13 @@ fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
         }
         i += 2;
     }
-    Poly3329::from_vec(coeffs, degree)
+    Poly3329::from_vec(coeffs, n)
 }
 
 // Centered Binomial Distribution
 // Algorithm 2 p. 8
 // Takes as input an array of 64 eta bytes
-fn cbd(bs: ByteArray, eta: usize, q: usize) -> Poly3329 {
+fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
     let mut f_coeffs = vec![F3329::default(); 256];
     for i in 0..256 {
         let mut a = 0;
