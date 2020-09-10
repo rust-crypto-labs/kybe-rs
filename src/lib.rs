@@ -1,5 +1,7 @@
 extern crate sha3;
 
+use std::convert::TryInto;
+
 mod bytearray;
 mod hash;
 mod polyvec;
@@ -44,11 +46,10 @@ impl KyberParams {
 ////////////// PKE /////////////////////////
 
 // Kyber CPAPKE Key Generation => (secret key, public key)
+// Algorithm 4 p. 9
 pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
-    let D_SIZE = 4;
-
     let k = params.k;
-    let d = ByteArray::random(D_SIZE);
+    let d = ByteArray::random(32);
     let (rho, sigma) = g(d);
 
     let mut a = PolyMatrix3329::init_matrix(k, k);
@@ -62,11 +63,11 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     }
 
     let (mut s, mut e) = (PolyVec3329::init(256), PolyVec3329::init(256));
-    let PRF_LEN = 4;
+    let prf_len = 64 * params.eta;
 
     for i in 0..k {
-        s.set(i, cbd(prf(&sigma, i, PRF_LEN), params.eta, params.q));
-        e.set(i, cbd(prf(&sigma, k + i, PRF_LEN), params.eta, params.q));
+        s.set(i, cbd(prf(&sigma, i, prf_len), params.eta, params.q));
+        e.set(i, cbd(prf(&sigma, k + i, prf_len), params.eta, params.q));
     }
     let s_hat = ntt(s);
     let e_hat = ntt(e);
@@ -118,7 +119,7 @@ fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
     while j < degree {
         let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
         if d < 19 * q {
-            coeffs[j] = F3329::from_int(d);
+            coeffs[j] = F3329::from_int(d.try_into().unwrap());
             j += 1;
         }
         i += 2;
@@ -127,8 +128,26 @@ fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
 }
 
 // Centered Binomial Distribution
-fn cbd(_bs: ByteArray, _eta: usize, _q: usize) -> Poly3329 {
-    unimplemented!();
+// Algorithm 2 p. 8
+// Takes as input an array of 64 eta bytes
+fn cbd(bs: ByteArray, eta: usize, q: usize) -> Poly3329 {
+    let mut f_coeffs = vec![F3329::default(); 256];
+    for i in 0..256 {
+        let mut a = 0;
+        let mut b = 0;
+
+        for j in 0..eta {
+            if bs.get_bit(2 * i * eta + j) {
+                a += 1;
+            }
+            if bs.get_bit(2 * i * eta + eta + j) {
+                b += 1;
+            }
+        }
+
+        f_coeffs[i] = F3329::from_int(a - b);
+    }
+    Poly3329::from_vec(f_coeffs, 256)
 }
 
 // Deserialize ByteArray into Polynomial

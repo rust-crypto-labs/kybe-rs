@@ -4,7 +4,7 @@ use std::fmt::Debug;
 
 #[derive(Clone, Copy)]
 pub struct PrimeField3329 {
-    val: usize,
+    val: i64,
 }
 
 impl Debug for PrimeField3329 {
@@ -31,13 +31,13 @@ impl FiniteField for PrimeField3329 {
 
     fn neg(&self) -> Self {
         Self {
-            val: Self::order() - &self.val,
+            val: (Self::order() as i64) - &self.val,
         }
     }
 
     fn add(&self, other: &Self) -> Self {
         Self {
-            val: (self.val + other.val) % Self::order(),
+            val: (self.val + other.val) % (Self::order() as i64),
         }
     }
 
@@ -47,7 +47,7 @@ impl FiniteField for PrimeField3329 {
 
     fn mul(&self, other: &Self) -> Self {
         Self {
-            val: (&self.val * &other.val) % Self::order(),
+            val: (&self.val * &other.val) % (Self::order() as i64),
         }
     }
 
@@ -80,7 +80,7 @@ impl PrimeField3329 {
         3329
     }
 
-    pub fn from_int(x: usize) -> Self {
+    pub fn from_int(x: i64) -> Self {
         Self { val: x }
     }
 }
