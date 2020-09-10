@@ -16,7 +16,30 @@ pub type F3329 = PrimeField3329;
 pub type Poly3329 = Polynomial<F3329>;
 pub type PolyVec3329 = PolyVec<Poly3329>;
 pub type PolyMatrix3329 = Matrix<Poly3329>;
-type KyberParams = (usize, usize, usize);
+
+pub struct KyberParams {
+    pub n: usize,
+    pub k: usize,
+    pub q: usize,
+    pub eta: usize,
+    pub du: usize,
+    pub dv: usize,
+    pub delta: usize,
+}
+
+impl KyberParams {
+    pub const fn kyber512() -> Self {
+        Self {
+            n: 256,
+            k: 2,
+            q: 3329,
+            eta: 2,
+            du: 10,
+            dv: 3,
+            delta: 178,
+        }
+    }
+}
 
 ////////////// PKE /////////////////////////
 
@@ -24,30 +47,26 @@ type KyberParams = (usize, usize, usize);
 pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let D_SIZE = 4;
 
-    let (k, _, _) = params;
+    let k = params.k;
     let d = ByteArray::random(D_SIZE);
     let (rho, sigma) = g(d);
 
     let mut a = PolyMatrix3329::init_matrix(k, k);
 
     let XOF_LEN = 4;
-    let PARSE_N = 4;
-    let PARSE_Q = 4;
 
     for i in 0..k {
         for j in 0..k {
-            a.set(j, i, parse(xof(&rho, j, i, XOF_LEN), PARSE_N, PARSE_Q));
+            a.set(j, i, parse(xof(&rho, j, i, XOF_LEN), params.n, params.q));
         }
     }
 
     let (mut s, mut e) = (PolyVec3329::init(256), PolyVec3329::init(256));
     let PRF_LEN = 4;
-    let CBD_ETA = 4;
-    let CBD_Q = 4;
 
     for i in 0..k {
-        s.set(i, cbd(prf(&sigma, i, PRF_LEN), CBD_ETA, CBD_Q));
-        e.set(i, cbd(prf(&sigma, k + i, PRF_LEN), CBD_ETA, CBD_Q));
+        s.set(i, cbd(prf(&sigma, i, PRF_LEN), params.eta, params.q));
+        e.set(i, cbd(prf(&sigma, k + i, PRF_LEN), params.eta, params.q));
     }
     let s_hat = ntt(s);
     let e_hat = ntt(e);
@@ -125,7 +144,6 @@ fn decode(bs: ByteArray) -> Poly3329 {
             }
         }
     }
-
     Poly3329::from_vec(f, 256)
 }
 

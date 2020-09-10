@@ -2,13 +2,13 @@ use kybe_rs;
 
 #[test]
 fn pke_keygen_call() {
-    let params = (2, 0, 0);
+    let params = kybe_rs::KyberParams::kyber512();
     kybe_rs::kyber_cpapke_key_gen(params);
 }
 
 #[test]
 fn encrypt_then_decrypt() {
-    let params = (2, 0, 0);
+    let params = kybe_rs::KyberParams::kyber512();
     let (sk, pk) = kybe_rs::kyber_cpapke_key_gen(params);
 
     let M_SIZE = 4;
