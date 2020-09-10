@@ -5,7 +5,7 @@ mod hash;
 mod polyvec;
 mod primefield;
 
-use polyvec::structures::RingModule;
+use polyvec::structures::{FiniteField, RingModule};
 
 use polyvec::{Matrix, PolyVec, Polynomial};
 use primefield::PrimeField3329;
@@ -33,7 +33,7 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let XOF_LEN = 4;
     let PARSE_N = 4;
     let PARSE_Q = 4;
-    
+
     for i in 0..k {
         for j in 0..k {
             a.set(j, i, parse(xof(&rho, j, i, XOF_LEN), PARSE_N, PARSE_Q));
@@ -42,9 +42,12 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
     let (mut s, mut e) = (PolyVec3329::init(256), PolyVec3329::init(256));
     let PRF_LEN = 4;
+    let CBD_ETA = 4;
+    let CBD_Q = 4;
+
     for i in 0..k {
-        s.set(i, cbd(prf(&sigma, i, PRF_LEN)));
-        e.set(i, cbd(prf(&sigma, k + i, PRF_LEN)));
+        s.set(i, cbd(prf(&sigma, i, PRF_LEN), CBD_ETA, CBD_Q));
+        e.set(i, cbd(prf(&sigma, k + i, PRF_LEN), CBD_ETA, CBD_Q));
     }
     let s_hat = ntt(s);
     let e_hat = ntt(e);
@@ -94,7 +97,7 @@ fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
     let mut j = 0;
     let mut coeffs = vec![F3329::default(); degree];
     while j < degree {
-        let d = (bs.data[i] as usize) + (bs.data[i+1] as usize) << 8;
+        let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
         if d < 19 * q {
             coeffs[j] = F3329::from_int(d);
             j += 1;
@@ -105,17 +108,29 @@ fn parse(bs: ByteArray, degree: usize, q: usize) -> Poly3329 {
 }
 
 // Centered Binomial Distribution
-fn cbd(_bs: ByteArray) -> Poly3329 {
-    unimplemented!();
-}
-
-// Serialize Polynomial into ByteArray
-fn encode(_p: PolyVec3329) -> ByteArray {
+fn cbd(_bs: ByteArray, _eta: usize, _q: usize) -> Poly3329 {
     unimplemented!();
 }
 
 // Deserialize ByteArray into Polynomial
-fn decode(_bs: ByteArray) -> PolyVec3329 {
+// Algorithm 3 p. 8
+fn decode(bs: ByteArray) -> Poly3329 {
+    let ell = bs.data.len() / 32;
+    let f = vec![F3329::from_int(0); 256];
+
+    for i in 0..256 {
+        for j in 0..ell {
+            if bs.get_bit(i * ell + j) {
+                f[i].add(&F3329::from_int(2 << j));
+            }
+        }
+    }
+
+    Poly3329::from_vec(f, 256)
+}
+
+// Serialize Polynomial into ByteArray
+fn encode(_p: PolyVec3329) -> ByteArray {
     unimplemented!();
 }
 

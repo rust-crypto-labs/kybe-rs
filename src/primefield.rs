@@ -81,6 +81,6 @@ impl PrimeField3329 {
     }
 
     pub fn from_int(x: usize) -> Self {
-        Self {val: x }
+        Self { val: x }
     }
 }
