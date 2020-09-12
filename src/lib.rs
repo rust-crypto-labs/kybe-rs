@@ -54,7 +54,7 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
     let mut a = PolyMatrix3329::init_matrix(k, k);
 
-    let XOF_LEN = 4;
+    let XOF_LEN = 4000;
 
     for i in 0..k {
         for j in 0..k {

@@ -21,7 +21,7 @@ impl ByteArray {
 
     pub fn get_bit(&self, pos: usize) -> bool {
         let byte_index = pos >> 3;
-        let bit_in_byte = pos & 0xf;
+        let bit_in_byte = pos & 0b111;
         let mask = 2 << bit_in_byte;
         !(self.data[byte_index] & mask == 0)
     }
