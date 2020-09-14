@@ -197,25 +197,11 @@ fn xof(r: &ByteArray, j: usize, i: usize, len: usize) -> ByteArray {
     }
 }
 
-// From https://doc.rust-lang.org/nomicon/borrow-splitting.html
-pub fn split_at_mut<T>(v: &mut Vec<T>, mid: usize) -> (&mut [T], &mut [T]) {
-    let len = v.len();
-    let ptr = v.as_mut_ptr();
-
-    unsafe {
-        assert!(mid <= len);
-
-        (
-            std::slice::from_raw_parts_mut(ptr, mid),
-            std::slice::from_raw_parts_mut(ptr.add(mid), len - mid),
-        )
-    }
-}
-
 // Hash function => SHA3-256
 fn h(r: ByteArray) -> (ByteArray, ByteArray) {
-    let mut hash = hash::sha3_256(r.data);
-    let (part0, part1) = split_at_mut(&mut hash, 16);
+    let hash = hash::sha3_256(r.data);
+    let (part0, part1) = hash.split_at(16);
+
     (
         ByteArray {
             data: part0.to_vec(),
@@ -228,8 +214,9 @@ fn h(r: ByteArray) -> (ByteArray, ByteArray) {
 
 // Hash function => SHA3-512
 fn g(r: ByteArray) -> (ByteArray, ByteArray) {
-    let mut hash = hash::sha3_512(r.data);
-    let (part0, part1) = split_at_mut(&mut hash, 32);
+    let hash = hash::sha3_512(r.data);
+    let (part0, part1) = hash.split_at(32);
+
     (
         ByteArray {
             data: part0.to_vec(),
