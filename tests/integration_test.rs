@@ -20,8 +20,8 @@ fn encrypt_then_decrypt_cpapke() {
     let m = kybe_rs::ByteArray::random(32);
     let r = kybe_rs::ByteArray::random(32);
 
-    let enc = kybe_rs::kyber_cpapke_enc(&pk, &m, r);
-    let dec = kybe_rs::kyber_cpapke_dec(&sk, &enc);
+    let enc = kybe_rs::kyber_cpapke_enc(params, &pk, &m, r);
+    let dec = kybe_rs::kyber_cpapke_dec(params, &sk, &enc);
 
     assert_eq!(m, dec);
 }

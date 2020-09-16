@@ -62,13 +62,18 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 }
 
 // Encryption : public key, message, random coins => ciphertext
-pub fn kyber_cpapke_enc(_pk: &ByteArray, _m: &ByteArray, _r: ByteArray) -> ByteArray {
+pub fn kyber_cpapke_enc(
+    _params: KyberParams,
+    _pk: &ByteArray,
+    _m: &ByteArray,
+    _r: ByteArray,
+) -> ByteArray {
     unimplemented!();
 }
 
 // Decryption : secret key, ciphertext => message
-pub fn kyber_cpapke_dec(_sk: &ByteArray, _c: &ByteArray) -> ByteArray {
-    unimplemented!();
+pub fn kyber_cpapke_dec(_params: KyberParams, _sk: &ByteArray, _c: &ByteArray) -> ByteArray {
+    unimplemented!()
 }
 
 ////////////// KEM /////////////////////////
@@ -79,7 +84,7 @@ pub fn kyber_ccakem_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let z = ByteArray::random(32);
     let (pk, sk) = kyber_cpapke_key_gen(params);
     let (h1, h2) = h(&pk);
-    let sk = sk.append(&pk).append(&h1).append(&h2).append(&z);
+    let sk = ByteArray::concat(&[&sk, &pk, &h1, &h2, &z]);
     (sk, pk)
 }
 
@@ -89,13 +94,13 @@ pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, Byte
     let m = ByteArray::random(32);
     let (m1, m2) = h(&m);
     let (h1, h2) = h(pk);
-    let (k, r) = g(m1.append(&m2).append(&h1).append(&h2));
+    let (k, r) = g(ByteArray::concat(&[&m1, &m2, &h1, &h2]));
 
-    let c = kyber_cpapke_enc(pk, &m1.append(&m2), r);
+    let c = kyber_cpapke_enc(params, pk, &m1.append(&m2), r);
 
     let (h1, h2) = h(&c);
 
-    let k = kdf(&k.append(&h1).append(&h2), params.sk_size);
+    let k = kdf(&ByteArray::concat(&[&k, &h1, &h2]), params.sk_size);
 
     (c, k)
 }
@@ -173,7 +178,7 @@ fn prf(s: &ByteArray, b: usize, len: usize) -> ByteArray {
     let b_as_bytes = ByteArray {
         data: (b as u64).to_be_bytes().to_vec(),
     };
-    let input = s.clone().append(&b_as_bytes);
+    let input = ByteArray::concat(&[s, &b_as_bytes]);
     ByteArray {
         data: hash::shake_256(input.data, len),
     }
@@ -188,7 +193,7 @@ fn xof(r: &ByteArray, j: usize, i: usize, len: usize) -> ByteArray {
         data: (j as u64).to_be_bytes().to_vec(),
     };
 
-    let input = r.clone().append(&j_as_bytes).append(&i_as_bytes);
+    let input = ByteArray::concat(&[r, &j_as_bytes, &i_as_bytes]);
     ByteArray {
         data: hash::shake_128(input.data, len),
     }
