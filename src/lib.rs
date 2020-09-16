@@ -43,6 +43,9 @@ impl KyberParams {
     }
 }
 
+// TODO: find actual value (it if makes sense)
+const KDF_LENGTH: usize = 4;
+
 ////////////// PKE /////////////////////////
 
 // Kyber CPAPKE Key Generation => (secret key, public key)
@@ -104,8 +107,22 @@ pub fn kyber_ccakem_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 }
 
 // Encryption : public key  => ciphertext, Shared Key
-pub fn kyber_ccakem_enc(_pk: &ByteArray) -> (ByteArray, ByteArray) {
-    unimplemented!();
+// Algorithm 8 p. 11
+pub fn kyber_ccakem_enc(pk: &ByteArray) -> (ByteArray, ByteArray) {
+
+    let m = ByteArray::random(32);
+    let (m1, m2) = h(&m);
+    let (h1, h2) = h(pk);
+    let (k, r) = g(m1.append(&m2).append(&h1).append(&h2));
+
+    let c = kyber_cpapke_enc(pk, &m1.append(&m2), r);
+
+    let (h1, h2) = h(&c);
+
+
+    let k = kdf(&k.append(&h1).append(&h2), KDF_LENGTH);
+
+    (c, k)
 }
 
 // Decryption : secret key, ciphertext => Shared Key
@@ -233,8 +250,10 @@ fn g(r: ByteArray) -> (ByteArray, ByteArray) {
 }
 
 // Key Derivation function => SHAKE-256
-fn kdf() {
-    unimplemented!();
+fn kdf(r: &ByteArray, len: usize) -> ByteArray {
+    let hash = hash::shake_256(r.data.clone(), len);
+    
+    ByteArray { data: hash }
 }
 
 // Number theoretic Transform
