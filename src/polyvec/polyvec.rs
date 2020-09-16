@@ -47,12 +47,7 @@ where
         if self.dimension == 0 {
             true
         } else {
-            for c in self.coefficients.iter() {
-                if !c.is_zero() {
-                    return false;
-                }
-            }
-            true
+            self.coefficients.iter().all(|c| c.is_zero())
         }
     }
 

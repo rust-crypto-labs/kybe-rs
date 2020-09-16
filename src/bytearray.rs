@@ -1,5 +1,5 @@
 use rand::prelude::*;
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ByteArray {
     /// Array of bytes
     pub data: Vec<u8>,
@@ -62,18 +62,3 @@ impl ByteArray {
         result
     }
 }
-
-impl PartialEq for ByteArray {
-    fn eq(&self, other: &Self) -> bool {
-        if self.data.len() != other.data.len() {
-            return false;
-        }
-        for (i, c) in self.data.iter().enumerate() {
-            if other.data[i] != *c {
-                return false;
-            }
-        }
-        true
-    }
-}
-impl Eq for ByteArray {}
