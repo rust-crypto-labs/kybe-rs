@@ -94,8 +94,13 @@ pub fn kyber_cpapke_dec(_sk: &ByteArray, _c: &ByteArray) -> ByteArray {
 ////////////// KEM /////////////////////////
 
 // Kyber CCAKEM Key Generation => (secret key, public key)
-pub fn kyber_ccakem_key_gen() -> (ByteArray, ByteArray) {
-    unimplemented!();
+// Algorithm 7 p. 11
+pub fn kyber_ccakem_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
+    let z = ByteArray::random(32);
+    let (pk, sk) = kyber_cpapke_key_gen(params);
+    let (h1, h2) = h(&pk);
+    let sk = sk.append(&pk).append(&h1).append(&h2).append(&z);
+    (sk, pk)
 }
 
 // Encryption : public key  => ciphertext, Shared Key
@@ -198,8 +203,8 @@ fn xof(r: &ByteArray, j: usize, i: usize, len: usize) -> ByteArray {
 }
 
 // Hash function => SHA3-256
-fn h(r: ByteArray) -> (ByteArray, ByteArray) {
-    let hash = hash::sha3_256(r.data);
+fn h(r: &ByteArray) -> (ByteArray, ByteArray) {
+    let hash = hash::sha3_256(r.data.clone());
     let (part0, part1) = hash.split_at(16);
 
     (

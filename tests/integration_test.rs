@@ -25,12 +25,18 @@ fn encrypt_then_decrypt() {
 
 #[test]
 fn kem_keygen_call() {
-    kybe_rs::kyber_ccakem_key_gen();
+
+    let params = kybe_rs::KyberParams::kyber512();
+
+    kybe_rs::kyber_ccakem_key_gen(params);
 }
 
 #[test]
 fn encapsulate_then_decapsulate() {
-    let (sk, pk) = kybe_rs::kyber_ccakem_key_gen();
+
+    let params = kybe_rs::KyberParams::kyber512();
+
+    let (sk, pk) = kybe_rs::kyber_ccakem_key_gen(params);
     let (ctx, shk) = kybe_rs::kyber_ccakem_enc(&pk);
     let shk2 = kybe_rs::kyber_ccakem_dec(&ctx, &sk);
     assert_eq!(shk, shk2);
