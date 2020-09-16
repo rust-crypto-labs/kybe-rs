@@ -4,47 +4,23 @@ use std::convert::TryInto;
 
 mod bytearray;
 mod hash;
+mod params;
 mod polyvec;
 mod primefield;
 
-use polyvec::structures::{FiniteField, RingModule};
-
-use polyvec::{Matrix, PolyVec, Polynomial};
+use polyvec::{
+    structures::{FiniteField, RingModule},
+    Matrix, PolyVec, Polynomial,
+};
 use primefield::PrimeField3329;
 
 pub use bytearray::ByteArray;
+pub use params::KyberParams;
 
 pub type F3329 = PrimeField3329;
 pub type Poly3329 = Polynomial<F3329>;
 pub type PolyVec3329 = PolyVec<Poly3329>;
 pub type PolyMatrix3329 = Matrix<Poly3329>;
-
-pub struct KyberParams {
-    pub n: usize,
-    pub k: usize,
-    pub q: usize,
-    pub eta: usize,
-    pub du: usize,
-    pub dv: usize,
-    pub delta: usize,
-}
-
-impl KyberParams {
-    pub const fn kyber512() -> Self {
-        Self {
-            n: 256,
-            k: 2,
-            q: 3329,
-            eta: 2,
-            du: 10,
-            dv: 3,
-            delta: 178,
-        }
-    }
-}
-
-// TODO: find actual value (it if makes sense)
-const KDF_LENGTH: usize = 4;
 
 ////////////// PKE /////////////////////////
 
@@ -108,8 +84,7 @@ pub fn kyber_ccakem_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
 // Encryption : public key  => ciphertext, Shared Key
 // Algorithm 8 p. 11
-pub fn kyber_ccakem_enc(pk: &ByteArray) -> (ByteArray, ByteArray) {
-
+pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, ByteArray) {
     let m = ByteArray::random(32);
     let (m1, m2) = h(&m);
     let (h1, h2) = h(pk);
@@ -119,8 +94,7 @@ pub fn kyber_ccakem_enc(pk: &ByteArray) -> (ByteArray, ByteArray) {
 
     let (h1, h2) = h(&c);
 
-
-    let k = kdf(&k.append(&h1).append(&h2), KDF_LENGTH);
+    let k = kdf(&k.append(&h1).append(&h2), params.sk_size);
 
     (c, k)
 }
@@ -252,7 +226,7 @@ fn g(r: ByteArray) -> (ByteArray, ByteArray) {
 // Key Derivation function => SHAKE-256
 fn kdf(r: &ByteArray, len: usize) -> ByteArray {
     let hash = hash::shake_256(r.data.clone(), len);
-    
+
     ByteArray { data: hash }
 }
 
