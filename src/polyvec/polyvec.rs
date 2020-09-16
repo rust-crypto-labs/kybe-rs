@@ -2,8 +2,8 @@ use crate::polyvec::structures::{FiniteRing, RingModule};
 
 #[derive(Clone)]
 pub struct PolyVec<T: FiniteRing> {
-    coefficients: Vec<T>,
-    dimension: usize,
+    pub coefficients: Vec<T>,
+    pub dimension: usize,
 }
 
 impl<T> RingModule<T> for PolyVec<T>

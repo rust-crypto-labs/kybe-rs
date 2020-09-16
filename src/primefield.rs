@@ -85,4 +85,8 @@ impl PrimeField3329 {
             val: x % (Self::order() as i64),
         }
     }
+
+    pub fn to_int(&self) -> i64 {
+        self.val
+    }
 }

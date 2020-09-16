@@ -11,13 +11,13 @@ where
     T: FiniteField + Default,
 {
     /// Coefficients of the polynomial
-    coefficients: Vec<T>,
+    pub coefficients: Vec<T>,
 
     /// Degree of the polynomial (the zero polynomial has degree < 0)
-    degree: i32,
+    pub degree: i32,
 
     /// Dimension of the ring as as a vector space over T
-    n: usize,
+    pub n: usize,
 }
 
 impl<T> FiniteRing for Polynomial<T>
@@ -177,7 +177,7 @@ where
         Self::from_vec(vec![Default::default()], n)
     }
 
-    fn dimension(&self) -> usize {
+    pub fn dimension(&self) -> usize {
         self.n
     }
 

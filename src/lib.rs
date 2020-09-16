@@ -3,6 +3,7 @@ extern crate sha3;
 use std::convert::TryInto;
 
 mod bytearray;
+mod compress;
 mod hash;
 mod params;
 mod polyvec;
@@ -237,13 +238,5 @@ fn ntt(_p: PolyVec3329) -> PolyVec3329 {
 
 // Reverse NTT
 fn rev_ntt(_p_hat: PolyVec3329) -> PolyVec3329 {
-    unimplemented!();
-}
-
-fn compress(_x: usize, _d: usize) -> usize {
-    unimplemented!();
-}
-
-fn decompress(_x: usize, _d: usize) -> usize {
     unimplemented!();
 }
