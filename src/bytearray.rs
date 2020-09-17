@@ -46,4 +46,10 @@ impl ByteArray {
             data: self.data.iter().cloned().skip(num).collect(),
         }
     }
+
+    pub fn truncate(&self, len: usize) -> Self {
+        let mut data = self.data.clone();
+        data.truncate(len);
+        Self { data }
+    }
 }

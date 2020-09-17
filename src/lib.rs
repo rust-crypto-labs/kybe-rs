@@ -5,11 +5,13 @@ use std::convert::TryInto;
 mod bytearray;
 mod compress;
 mod hash;
+mod ntt;
 mod params;
 mod polyvec;
 mod primefield;
 
 use compress::{compress_polyvec, decompress_polyvec};
+use ntt::{bcm_matrix_vec, ntt_vec};
 use polyvec::{
     structures::{FiniteField, RingModule},
     Matrix, PolyVec, Polynomial,
@@ -49,12 +51,12 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
         s.set(i, cbd(prf(&sigma, i, prf_len), params.eta));
         e.set(i, cbd(prf(&sigma, k + i, prf_len), params.eta));
     }
-    let s_hat = ntt(s);
-    let e_hat = ntt(e);
+    let s_hat = ntt_vec(&s);
+    let e_hat = ntt_vec(&e);
 
-    let t_hat = a.vec_mul(&s_hat).add(&e_hat);
+    let t_hat = bcm_matrix_vec(&a, &s_hat).add(&e_hat);
 
-    // mod+ q  ?
+    // TODO: mod+ q  ?
     let sk = encode(t_hat).append(&rho);
     let pk = encode(s_hat);
 
@@ -105,7 +107,7 @@ pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, Byte
 // Decryption : secret key, ciphertext => Shared Key
 pub fn kyber_ccakem_dec(params: KyberParams, c: &ByteArray, sk: &ByteArray) -> ByteArray {
     let pk = sk.skip(12 * params.k * params.n / 8);
-    let hash = sk.skip(24 * params.k * params.n / 8 + 32);
+    let hash = sk.skip(24 * params.k * params.n / 8 + 32).truncate(32);
     let z = sk.skip(24 * params.k * params.n / 8 + 64);
 
     let m = kyber_cpapke_dec(params, sk, c);
@@ -244,14 +246,4 @@ fn kdf(r: &ByteArray, len: usize) -> ByteArray {
     let hash = hash::shake_256(r.data.clone(), len);
 
     ByteArray { data: hash }
-}
-
-// Number theoretic Transform
-fn ntt(_p: PolyVec3329) -> PolyVec3329 {
-    unimplemented!();
-}
-
-// Reverse NTT
-fn rev_ntt(_p_hat: PolyVec3329) -> PolyVec3329 {
-    unimplemented!();
 }
