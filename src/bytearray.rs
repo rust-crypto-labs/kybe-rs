@@ -15,19 +15,20 @@ impl ByteArray {
     }
 
     pub fn append(&self, other: &Self) -> Self {
-        let mut data = self.data.clone();
-        data.extend(other.data.iter().cloned());
+        let mut data = Vec::with_capacity(self.data.len() + other.data.len());
+
+        data.extend_from_slice(&self.data);
+        data.extend_from_slice(&other.data);
+
         Self { data }
     }
 
     pub fn concat(items: &[&Self]) -> Self {
-        if items.len() == 0 {
-            return Self { data: vec![] };
-        }
+        let len = items.iter().map(|slice| slice.data.len()).sum();
+        let mut data = Vec::with_capacity(len);
 
-        let mut data = items.first().unwrap().data.clone();
-        for item in items.iter().skip(1) {
-            data.extend(item.data.iter().cloned());
+        for item in items.iter() {
+            data.extend_from_slice(&item.data);
         }
 
         Self { data }
