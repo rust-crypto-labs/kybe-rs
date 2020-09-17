@@ -40,25 +40,9 @@ impl ByteArray {
         !(self.data[byte_index] & mask == 0)
     }
 
-    /// Builds a byte array from an integer
-    /// Note: little endian
-    pub fn from_int(x: u64) -> Self {
-        let mut data = vec![0; 8];
-        for i in 0..8 {
-            data.push(((x >> (8 * i)) & 0xf) as u8);
+    pub fn skip(&self, num: usize) -> Self {
+        Self {
+            data: self.data.iter().cloned().skip(num).collect(),
         }
-
-        Self { data }
-    }
-
-    /// Exports the byte array as an integer
-    /// Note: little endian
-    pub fn to_int(&self) -> u64 {
-        assert!(self.data.len() <= 8);
-        let mut result = 0;
-        for (i, x) in self.data.iter().enumerate() {
-            result += (*x as u64) << (8 * i);
-        }
-        result
     }
 }

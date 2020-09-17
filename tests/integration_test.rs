@@ -32,6 +32,6 @@ fn encapsulate_then_decapsulate_ccakem() {
 
     let (sk, pk) = kybe_rs::kyber_ccakem_key_gen(params);
     let (ctx, shk) = kybe_rs::kyber_ccakem_enc(params, &pk);
-    let shk2 = kybe_rs::kyber_ccakem_dec(&ctx, &sk);
+    let shk2 = kybe_rs::kyber_ccakem_dec(params, &ctx, &sk);
     assert_eq!(shk, shk2);
 }

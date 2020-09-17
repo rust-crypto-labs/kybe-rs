@@ -9,6 +9,7 @@ mod params;
 mod polyvec;
 mod primefield;
 
+use compress::{compress_polyvec, decompress_polyvec};
 use polyvec::{
     structures::{FiniteField, RingModule},
     Matrix, PolyVec, Polynomial,
@@ -23,6 +24,7 @@ pub type Poly3329 = Polynomial<F3329>;
 pub type PolyVec3329 = PolyVec<Poly3329>;
 pub type PolyMatrix3329 = Matrix<Poly3329>;
 
+const XOF_LEN: usize = 4000;
 ////////////// PKE /////////////////////////
 
 // Kyber CPAPKE Key Generation => (secret key, public key)
@@ -34,11 +36,9 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
     let mut a = PolyMatrix3329::init_matrix(k, k);
 
-    let XOF_LEN = 4000;
-
     for i in 0..k {
         for j in 0..k {
-            a.set(j, i, parse(xof(&rho, j, i, XOF_LEN), params.n, params.q));
+            a.set(i, j, parse(xof(&rho, j, i, XOF_LEN), params.n, params.q));
         }
     }
 
@@ -63,12 +63,12 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
 // Encryption : public key, message, random coins => ciphertext
 pub fn kyber_cpapke_enc(
-    _params: KyberParams,
-    _pk: &ByteArray,
-    _m: &ByteArray,
-    _r: ByteArray,
+    params: KyberParams,
+    pk: &ByteArray,
+    m: &ByteArray,
+    r: ByteArray,
 ) -> ByteArray {
-    unimplemented!();
+    unimplemented!()
 }
 
 // Decryption : secret key, ciphertext => message
@@ -95,19 +95,29 @@ pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, Byte
     let (m1, m2) = h(&m);
     let (h1, h2) = h(pk);
     let (k, r) = g(ByteArray::concat(&[&m1, &m2, &h1, &h2]));
-
     let c = kyber_cpapke_enc(params, pk, &m1.append(&m2), r);
-
     let (h1, h2) = h(&c);
-
     let k = kdf(&ByteArray::concat(&[&k, &h1, &h2]), params.sk_size);
 
     (c, k)
 }
 
 // Decryption : secret key, ciphertext => Shared Key
-pub fn kyber_ccakem_dec(_c: &ByteArray, _sk: &ByteArray) -> ByteArray {
-    unimplemented!();
+pub fn kyber_ccakem_dec(params: KyberParams, c: &ByteArray, sk: &ByteArray) -> ByteArray {
+    let pk = sk.skip(12 * params.k * params.n / 8);
+    let hash = sk.skip(24 * params.k * params.n / 8 + 32);
+    let z = sk.skip(24 * params.k * params.n / 8 + 64);
+
+    let m = kyber_cpapke_dec(params, sk, c);
+    let (k, r) = g(m.append(&hash));
+    let c_prime = kyber_cpapke_enc(params, &pk, &m, r);
+
+    let (h1, h2) = h(c);
+    if *c == c_prime {
+        kdf(&ByteArray::concat(&[&k, &h1, &h2]), params.sk_size)
+    } else {
+        kdf(&ByteArray::concat(&[&z, &h1, &h2]), params.sk_size)
+    }
 }
 
 ////////////////// Utils ////////////////////
@@ -154,7 +164,7 @@ fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
 
 // Deserialize ByteArray into Polynomial
 // Algorithm 3 p. 8
-fn decode(bs: ByteArray) -> Poly3329 {
+fn decode(bs: &ByteArray) -> Poly3329 {
     let ell = bs.data.len() / 32;
     let f = vec![F3329::from_int(0); 256];
 

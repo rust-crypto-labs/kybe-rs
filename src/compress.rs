@@ -61,7 +61,7 @@ pub fn compress_polyvec(x: PolyVec3329, d: usize, q: usize) -> PolyVec3329 {
 }
 
 /// Decompress function on R_q^k
-fn decompress_polyvec(x: PolyVec3329, d: usize, q: usize) -> PolyVec3329 {
+pub fn decompress_polyvec(x: PolyVec3329, d: usize, q: usize) -> PolyVec3329 {
     let mut coeffs = vec![];
     for xi in x.coefficients.iter() {
         coeffs.push(decompress_poly(xi.clone(), d, q));
