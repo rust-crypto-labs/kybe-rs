@@ -1,6 +1,15 @@
 use kybe_rs;
 
 #[test]
+fn encode_decode_poly() {
+    use kybe_rs::{decode_to_poly, encode_poly, Poly3329};
+    let original = Poly3329::from_vec(vec![Default::default(); 32], 32);
+    let encoded = encode_poly(original.clone());
+    let decoded = decode_to_poly(&encoded);
+    assert!(decoded == original);
+}
+
+#[test]
 fn pke_keygen_cpapke() {
     let params = kybe_rs::KyberParams::kyber512();
     kybe_rs::kyber_cpapke_key_gen(params);

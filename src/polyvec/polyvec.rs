@@ -62,10 +62,10 @@ where
 
     fn add(&self, other: &Self) -> Self {
         assert_eq!(self.dimension(), other.dimension());
-        let mut v = vec![];
+        let mut v = vec![Default::default(); self.dimension()];
 
         for i in 0..self.dimension() {
-            v[i] = self.coefficients[i].add(&other.coefficients[i])
+            v[i] = self.coefficients[i].add(&other.coefficients[i]);
         }
         Self::from_vec(v)
     }

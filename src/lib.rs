@@ -4,6 +4,7 @@ use std::convert::TryInto;
 
 mod bytearray;
 mod compress;
+mod encode;
 mod hash;
 mod ntt;
 mod params;
@@ -11,14 +12,12 @@ mod polyvec;
 mod primefield;
 
 use compress::{compress_polyvec, decompress_polyvec};
-use ntt::{bcm_matrix_vec, ntt_vec};
-use polyvec::{
-    structures::{FiniteField, RingModule},
-    Matrix, PolyVec, Polynomial,
-};
+use ntt::{bcm_matrix_vec, ntt_product_matvec, ntt_product_vec, ntt_vec};
+use polyvec::{structures::RingModule, Matrix, PolyVec, Polynomial};
 use primefield::PrimeField3329;
 
 pub use bytearray::ByteArray;
+pub use encode::{decode_to_poly, decode_to_polyvec, encode_poly, encode_polyvec};
 pub use params::KyberParams;
 
 pub type F3329 = PrimeField3329;
@@ -57,8 +56,8 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let t_hat = bcm_matrix_vec(&a, &s_hat).add(&e_hat);
 
     // TODO: mod+ q  ?
-    let sk = encode(t_hat).append(&rho);
-    let pk = encode(s_hat);
+    let sk = encode_polyvec(t_hat).append(&rho);
+    let pk = encode_polyvec(s_hat);
 
     (sk, pk)
 }
@@ -70,12 +69,72 @@ pub fn kyber_cpapke_enc(
     m: &ByteArray,
     r: ByteArray,
 ) -> ByteArray {
-    unimplemented!()
+    let mut n_ctr = 0;
+    let offset = 12 * params.k * params.n / 8;
+    let prf_len = 64 * params.eta;
+
+    let t_hat = decode_to_polyvec(pk);
+    let rho = pk.skip(offset);
+    let mut a = PolyMatrix3329::init_matrix(params.k, params.k);
+
+    for i in 0..params.k {
+        for j in 0..params.k {
+            a.set(i, j, parse(xof(&rho, j, i, XOF_LEN), params.n, params.q));
+        }
+    }
+
+    let mut r_bold = vec![];
+    for _ in 0..params.k {
+        r_bold.push(cbd(prf(&r, n_ctr, prf_len), params.eta));
+        n_ctr += 1;
+    }
+    let r_bold = PolyVec3329::from_vec(r_bold);
+
+    let mut e1 = vec![];
+    for _ in 0..params.k {
+        e1.push(cbd(prf(&r, n_ctr, prf_len), params.eta));
+        n_ctr += 1;
+    }
+    let e1 = PolyVec3329::from_vec(e1);
+    let e2 = PolyVec3329::from_vec(vec![cbd(prf(&r, n_ctr, prf_len), params.eta)]);
+
+    let r_hat = ntt_vec(&r_bold);
+    let u_bold = ntt_product_matvec(&a, &r_hat).add(&e1);
+
+    let v = ntt_product_vec(&t_hat, &r_hat)
+        .add(&e2)
+        .add(&decompress_polyvec(decode_to_polyvec(m), 1, params.q));
+
+    let c1 = encode_polyvec(compress_polyvec(u_bold, params.du, params.q));
+    let c2 = encode_polyvec(compress_polyvec(v, params.dv, params.q));
+
+    c1.append(&c2)
 }
 
 // Decryption : secret key, ciphertext => message
-pub fn kyber_cpapke_dec(_params: KyberParams, _sk: &ByteArray, _c: &ByteArray) -> ByteArray {
-    unimplemented!()
+pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> ByteArray {
+    let u = decompress_polyvec(
+        decode_to_polyvec(&c.truncate(params.du)),
+        params.du,
+        params.q,
+    );
+
+    let offset = params.du * params.k * params.n / 8;
+
+    let v = decompress_polyvec(
+        decode_to_polyvec(&c.skip(offset).truncate(params.dv)),
+        params.dv,
+        params.q,
+    );
+
+    let u_hat = ntt_vec(&u);
+    let s = decode_to_polyvec(sk);
+
+    encode_polyvec(compress_polyvec(
+        v.sub(&ntt_product_vec(&s, &u_hat)),
+        1,
+        params.q,
+    ))
 }
 
 ////////////// KEM /////////////////////////
@@ -162,27 +221,6 @@ fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
         f_coeffs[i] = F3329::from_int(a - b);
     }
     Poly3329::from_vec(f_coeffs, 256)
-}
-
-// Deserialize ByteArray into Polynomial
-// Algorithm 3 p. 8
-fn decode(bs: &ByteArray) -> Poly3329 {
-    let ell = bs.data.len() / 32;
-    let f = vec![F3329::from_int(0); 256];
-
-    for i in 0..256 {
-        for j in 0..ell {
-            if bs.get_bit(i * ell + j) {
-                f[i].add(&F3329::from_int(2 << j));
-            }
-        }
-    }
-    Poly3329::from_vec(f, 256)
-}
-
-// Serialize Polynomial into ByteArray
-fn encode(_p: PolyVec3329) -> ByteArray {
-    unimplemented!();
 }
 
 // Pseudo random function => SHAKE-256(s||b);

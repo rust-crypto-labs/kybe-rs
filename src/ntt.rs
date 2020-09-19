@@ -1,12 +1,12 @@
 use crate::{Poly3329, PolyMatrix3329, PolyVec3329};
 
 /// Basecase multiplication between polynomials (p 7)
-pub fn bcm(a: &Poly3329, b: &Poly3329) -> Poly3329 {
+pub fn bcm(_a: &Poly3329, _b: &Poly3329) -> Poly3329 {
     unimplemented!()
 }
 
 /// Matrix basecase multiplication, cf p. 7
-pub fn bcm_matrix_vec(a: &PolyMatrix3329, b: &PolyVec3329) -> PolyVec3329 {
+pub fn bcm_matrix_vec(_a: &PolyMatrix3329, _b: &PolyVec3329) -> PolyVec3329 {
     unimplemented!()
 }
 
@@ -22,6 +22,11 @@ pub fn ntt_product_vec(a_hat: &PolyVec3329, b_hat: &PolyVec3329) -> PolyVec3329 
         c.push(ntt_product(a_i, b_i));
     }
     PolyVec3329::from_vec(c)
+}
+
+/// Computes a.b as NTT^-1(a_hat o b_hat)
+pub fn ntt_product_matvec(a_hat: &PolyMatrix3329, b_hat: &PolyVec3329) -> PolyVec3329 {
+    unimplemented!()
 }
 
 // Number theoretic Transform on vectors
@@ -43,11 +48,11 @@ pub fn rev_ntt_vec(p_hat: &PolyVec3329) -> PolyVec3329 {
 }
 
 // Number theoretic Transform
-pub fn ntt(p: &Poly3329) -> Poly3329 {
-    unimplemented!();
+pub fn ntt(_p: &Poly3329) -> Poly3329 {
+    unimplemented!()
 }
 
 // Reverse NTT
-pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
+pub fn rev_ntt(_p_hat: &Poly3329) -> Poly3329 {
     unimplemented!();
 }
