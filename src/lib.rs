@@ -113,24 +113,17 @@ pub fn kyber_cpapke_enc(
 
 // Decryption : secret key, ciphertext => message
 pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> ByteArray {
-    let u = decompress_polyvec(
-        decode_to_polyvec(&c.truncate(params.du)),
-        params.du,
-        params.q,
-    );
-
     let offset = params.du * params.k * params.n / 8;
 
-    let v = decompress_polyvec(
-        decode_to_polyvec(&c.skip(offset).truncate(params.dv)),
-        params.dv,
-        params.q,
-    );
+    let (c1, c2) = c.split_at(offset);
+    let u = decompress_polyvec(decode_to_polyvec(&c1), params.du, params.q);
+
+    let v = decompress_poly(decode_to_poly(&c2), params.dv, params.q);
 
     let u_hat = ntt_vec(&u);
     let s = decode_to_polyvec(sk);
 
-    encode_polyvec(compress_polyvec(
+    encode_poly(compress_poly(
         v.sub(&ntt_product_vec(&s, &u_hat)),
         1,
         params.q,
