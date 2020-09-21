@@ -1,3 +1,4 @@
+use crate::polyvec::structures::RingModule;
 use crate::{Poly3329, PolyMatrix3329, PolyVec3329};
 
 /// Basecase multiplication between polynomials (p 7)
@@ -15,13 +16,9 @@ pub fn ntt_product(a_hat: &Poly3329, b_hat: &Poly3329) -> Poly3329 {
     rev_ntt(&bcm(a_hat, b_hat))
 }
 
-/// Computes a.b as NTT^-1(a_hat o b_hat)
-pub fn ntt_product_vec(a_hat: &PolyVec3329, b_hat: &PolyVec3329) -> PolyVec3329 {
-    let mut c = vec![];
-    for (a_i, b_i) in a_hat.coefficients.iter().zip(b_hat.coefficients.iter()) {
-        c.push(ntt_product(a_i, b_i));
-    }
-    PolyVec3329::from_vec(c)
+/// Computes a^T.b as NTT^-1(a_hat^T o b_hat)
+pub fn ntt_product_vec(a_hat: &PolyVec3329, b_hat: &PolyVec3329) -> Poly3329 {
+    rev_ntt(&a_hat.dot(b_hat))
 }
 
 /// Computes a.b as NTT^-1(a_hat o b_hat)

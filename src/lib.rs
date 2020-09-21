@@ -10,9 +10,12 @@ mod polyvec;
 mod primefield;
 mod utils;
 
-use compress::{compress_polyvec, decompress_polyvec};
+use compress::{compress_poly, compress_polyvec, decompress_poly, decompress_polyvec};
 use ntt::{bcm_matrix_vec, ntt_product_matvec, ntt_product_vec, ntt_vec};
-use polyvec::{structures::RingModule, Matrix, PolyVec, Polynomial};
+use polyvec::{
+    structures::{FiniteRing, RingModule},
+    Matrix, PolyVec, Polynomial,
+};
 use primefield::PrimeField3329;
 use utils::{cbd, g, h, kdf, parse, prf, xof};
 
@@ -69,7 +72,6 @@ pub fn kyber_cpapke_enc(
     m: &ByteArray,
     r: ByteArray,
 ) -> ByteArray {
-    let mut n_ctr = 0;
     let offset = 12 * params.k * params.n / 8;
     let prf_len = 64 * params.eta;
 
@@ -84,29 +86,27 @@ pub fn kyber_cpapke_enc(
     }
 
     let mut r_bold = vec![];
-    for _ in 0..params.k {
-        r_bold.push(cbd(prf(&r, n_ctr, prf_len), params.eta));
-        n_ctr += 1;
+    for i in 0..params.k {
+        r_bold.push(cbd(prf(&r, i, prf_len), params.eta));
     }
     let r_bold = PolyVec3329::from_vec(r_bold);
 
     let mut e1 = vec![];
-    for _ in 0..params.k {
-        e1.push(cbd(prf(&r, n_ctr, prf_len), params.eta));
-        n_ctr += 1;
+    for i in 0..params.k {
+        e1.push(cbd(prf(&r, params.k + i, prf_len), params.eta));
     }
     let e1 = PolyVec3329::from_vec(e1);
-    let e2 = PolyVec3329::from_vec(vec![cbd(prf(&r, n_ctr, prf_len), params.eta)]);
+    let e2 = cbd(prf(&r, 2 * params.k, prf_len), params.eta);
 
     let r_hat = ntt_vec(&r_bold);
     let u_bold = ntt_product_matvec(&a, &r_hat).add(&e1);
 
     let v = ntt_product_vec(&t_hat, &r_hat)
         .add(&e2)
-        .add(&decompress_polyvec(decode_to_polyvec(m), 1, params.q));
+        .add(&decompress_poly(decode_to_poly(m), 1, params.q));
 
     let c1 = encode_polyvec(compress_polyvec(u_bold, params.du, params.q));
-    let c2 = encode_polyvec(compress_polyvec(v, params.dv, params.q));
+    let c2 = encode_poly(compress_poly(v, params.dv, params.q));
 
     c1.append(&c2)
 }
