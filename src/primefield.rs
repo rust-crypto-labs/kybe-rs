@@ -76,17 +76,17 @@ impl Default for PrimeField3329 {
 
 impl PrimeField3329 {
     #[inline]
-    fn order() -> usize {
+    const fn order() -> usize {
         3329
     }
 
-    pub fn from_int(x: i64) -> Self {
+    pub const fn from_int(x: i64) -> Self {
         Self {
             val: x % (Self::order() as i64),
         }
     }
 
-    pub fn to_int(&self) -> i64 {
+    pub const fn to_int(&self) -> i64 {
         self.val
     }
 }

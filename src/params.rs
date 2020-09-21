@@ -47,4 +47,19 @@ impl KyberParams {
             ct_size: 738,
         }
     }
+
+    pub const fn kyber768() -> Self {
+        Self {
+            n: 256,
+            k: 3,
+            q: 3329,
+            eta: 2,
+            du: 10,
+            dv: 4,
+            delta: 164,
+            pk_size: 1184,
+            sk_size: 2400,
+            ct_size: 1088,
+        }
+    }
 }

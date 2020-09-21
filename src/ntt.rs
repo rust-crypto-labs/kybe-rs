@@ -25,7 +25,7 @@ pub fn ntt_product_vec(a_hat: &PolyVec3329, b_hat: &PolyVec3329) -> PolyVec3329 
 }
 
 /// Computes a.b as NTT^-1(a_hat o b_hat)
-pub fn ntt_product_matvec(a_hat: &PolyMatrix3329, b_hat: &PolyVec3329) -> PolyVec3329 {
+pub fn ntt_product_matvec(_a_hat: &PolyMatrix3329, _b_hat: &PolyVec3329) -> PolyVec3329 {
     unimplemented!()
 }
 
