@@ -47,6 +47,11 @@ impl ByteArray {
         }
     }
 
+    pub fn split_at(&self, pos: usize) -> (Self, Self) {
+        let (d1, d2) = self.data.split_at(pos);
+        (Self { data: d1.to_vec() }, Self { data: d2.to_vec() })
+    }
+
     pub fn truncate(&self, len: usize) -> Self {
         let mut data = self.data.clone();
         data.truncate(len);
