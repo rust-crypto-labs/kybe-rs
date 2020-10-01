@@ -1,6 +1,6 @@
 use crate::polyvec::structures::FiniteField;
 
-use std::fmt::Debug;
+use std::{fmt::Debug, convert::TryInto};
 
 #[derive(Clone, Copy)]
 pub struct PrimeField3329 {
@@ -52,7 +52,12 @@ impl FiniteField for PrimeField3329 {
     }
 
     fn inv(&self) -> Result<Self, String> {
-        unimplemented!()
+        
+        let exp: u32 = (Self::order() - 1).try_into().unwrap();
+        
+        Ok(Self {
+            val: &self.val.pow(exp) % (Self::order() as i64),
+        })
     }
 
     fn div(&self, other: &Self) -> Result<Self, String> {
