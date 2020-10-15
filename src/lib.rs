@@ -76,7 +76,7 @@ pub fn kyber_cpapke_enc(
     let prf_len = 64 * params.eta;
 
     let (t, rho) = pk.split_at(offset);
-    let t_hat = decode_to_polyvec(&t);
+    let t_hat = decode_to_polyvec(t);
     let mut a = PolyMatrix3329::init_matrix(params.k, params.k);
 
     for i in 0..params.k {
@@ -103,7 +103,7 @@ pub fn kyber_cpapke_enc(
 
     let v = ntt_product_vec(&t_hat, &r_hat)
         .add(&e2)
-        .add(&decompress_poly(decode_to_poly(m), 1, params.q));
+        .add(&decompress_poly(decode_to_poly(m.clone()), 1, params.q));
 
     let c1 = encode_polyvec(compress_polyvec(u_bold, params.du, params.q));
     let c2 = encode_poly(compress_poly(v, params.dv, params.q));
@@ -116,12 +116,12 @@ pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> B
     let offset = params.du * params.k * params.n / 8;
 
     let (c1, c2) = c.split_at(offset);
-    let u = decompress_polyvec(decode_to_polyvec(&c1), params.du, params.q);
+    let u = decompress_polyvec(decode_to_polyvec(c1), params.du, params.q);
 
-    let v = decompress_poly(decode_to_poly(&c2), params.dv, params.q);
+    let v = decompress_poly(decode_to_poly(c2), params.dv, params.q);
 
     let u_hat = ntt_vec(&u);
-    let s = decode_to_polyvec(sk);
+    let s = decode_to_polyvec(sk.clone());
 
     encode_poly(compress_poly(
         v.sub(&ntt_product_vec(&s, &u_hat)),
