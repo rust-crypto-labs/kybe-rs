@@ -1,11 +1,17 @@
 use rand::prelude::*;
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct ByteArray {
     /// Array of bytes
     pub data: Vec<u8>,
 }
 
 impl ByteArray {
+    pub fn from_bytes(data: &[u8]) -> Self {
+        Self {
+            data: data.to_vec(),
+        }
+    }
+
     pub fn random(len: usize) -> Self {
         let mut data = vec![0; len];
         let mut rng = rand::thread_rng();
