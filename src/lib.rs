@@ -58,7 +58,6 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
     let t_hat = bcm_matrix_vec(&a, &s_hat).add(&e_hat);
 
-    // TODO: mod+ q  ?
     let sk = encode_polyvec(t_hat).append(&rho);
     let pk = encode_polyvec(s_hat);
 
