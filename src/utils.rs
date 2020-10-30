@@ -9,23 +9,26 @@ use crate::{hash, ByteArray, Poly3329, F3329};
 pub fn parse(bs: ByteArray, n: usize, q: usize) -> Poly3329 {
     let mut i = 0;
     let mut j = 0;
-    let mut coeffs = vec![F3329::default(); n];
+    
+    let mut p = Poly3329::init(n);
+
     while j < n {
         let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
         if d < 19 * q {
-            coeffs[j] = F3329::from_int(d.try_into().unwrap());
+            p[j] = F3329::from_int(d.try_into().unwrap());
             j += 1;
         }
         i += 2;
     }
-    Poly3329::from_vec(coeffs, n)
+
+    p
 }
 
 /// Centered Binomial Distribution
 /// Algorithm 2 p. 8
 /// Takes as input an array of 64 eta bytes
 pub fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
-    let mut f_coeffs = vec![F3329::default(); 256];
+    let mut p = Poly3329::init(256);
     for i in 0..256 {
         let mut a = 0;
         let mut b = 0;
@@ -39,9 +42,10 @@ pub fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
             }
         }
 
-        f_coeffs[i] = F3329::from_int(a - b);
+        p[i] = F3329::from_int(a - b);
     }
-    Poly3329::from_vec(f_coeffs, 256)
+
+    p
 }
 
 /// Pseudo random function => SHAKE-256(s||b);
