@@ -98,7 +98,7 @@ pub fn kyber_cpapke_enc(
     let e2 = cbd(prf(&r, 2 * params.k, prf_len), params.eta);
 
     let r_hat = ntt_vec(&r_bold);
-    let u_bold = ntt_product_matvec(&a, &r_hat).add(&e1);
+    let u_bold = ntt_product_matvec(&a_t, &r_hat).add(&e1);
 
     let v = ntt_product_vec(&t_hat, &r_hat)
         .add(&e2)
