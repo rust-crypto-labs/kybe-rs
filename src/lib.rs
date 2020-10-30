@@ -84,17 +84,11 @@ pub fn kyber_cpapke_enc(
         }
     }
 
-    let mut r_bold = vec![];
+    let (mut r_bold, mut e1) = (PolyVec3329::init(256), PolyVec3329::init(256));
     for i in 0..params.k {
-        r_bold.push(cbd(prf(&r, i, prf_len), params.eta));
+        r_bold.set(i,cbd(prf(&r, i, prf_len), params.eta));
+        e1.set(i,cbd(prf(&r, params.k + i, prf_len), params.eta));
     }
-    let r_bold = PolyVec3329::from_vec(r_bold);
-
-    let mut e1 = vec![];
-    for i in 0..params.k {
-        e1.push(cbd(prf(&r, params.k + i, prf_len), params.eta));
-    }
-    let e1 = PolyVec3329::from_vec(e1);
     let e2 = cbd(prf(&r, 2 * params.k, prf_len), params.eta);
 
     let r_hat = ntt_vec(&r_bold);
