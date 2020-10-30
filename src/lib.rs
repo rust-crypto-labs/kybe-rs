@@ -86,8 +86,8 @@ pub fn kyber_cpapke_enc(
 
     let (mut r_bold, mut e1) = (PolyVec3329::init(256), PolyVec3329::init(256));
     for i in 0..params.k {
-        r_bold.set(i,cbd(prf(&r, i, prf_len), params.eta));
-        e1.set(i,cbd(prf(&r, params.k + i, prf_len), params.eta));
+        r_bold.set(i, cbd(prf(&r, i, prf_len), params.eta));
+        e1.set(i, cbd(prf(&r, params.k + i, prf_len), params.eta));
     }
     let e2 = cbd(prf(&r, 2 * params.k, prf_len), params.eta);
 
@@ -107,14 +107,13 @@ pub fn kyber_cpapke_enc(
 // Decryption : secret key, ciphertext => message
 pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> ByteArray {
     let offset = params.du * params.k * params.n / 8;
-
     let (c1, c2) = c.split_at(offset);
-    let u = decompress_polyvec(decode_to_polyvec(c1), params.du, params.q);
 
+    let u = decompress_polyvec(decode_to_polyvec(c1), params.du, params.q);
     let v = decompress_poly(decode_to_poly(c2), params.dv, params.q);
+    let s = decode_to_polyvec(sk.clone());
 
     let u_hat = ntt_vec(&u);
-    let s = decode_to_polyvec(sk.clone());
 
     encode_poly(compress_poly(
         v.sub(&ntt_product_vec(&s, &u_hat)),
