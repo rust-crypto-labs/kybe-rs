@@ -151,9 +151,10 @@ pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, Byte
 
 // Decryption : secret key, ciphertext => Shared Key
 pub fn kyber_ccakem_dec(params: KyberParams, c: &ByteArray, sk: &ByteArray) -> ByteArray {
-    let pk = sk.skip(12 * params.k * params.n / 8);
-    let hash = sk.skip(24 * params.k * params.n / 8 + 32).truncate(32);
-    let z = sk.skip(24 * params.k * params.n / 8 + 64);
+    // Spliting sk = (sk'||pk||H(pk)||z)
+    let (_, rem) = sk.split_at(12 * params.k * params.n / 8);
+    let (pk, rem) = rem.split_at(12 * params.k * params.n / 8 + 32);
+    let (hash, z) = rem.split_at(32);
 
     let m = kyber_cpapke_dec(params, sk, c);
     let (k, r) = g(m.append(&hash));
