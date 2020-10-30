@@ -56,7 +56,7 @@ pub fn prf(s: &ByteArray, b: usize, len: usize) -> ByteArray {
 }
 
 /// Extendable output function => SHAKE-128(rho||j||i) with output of lenght len
-pub fn xof(r: &ByteArray, j: usize, i: usize, len: usize) -> ByteArray {
+pub fn xof(r: &ByteArray, i: usize, j: usize, len: usize) -> ByteArray {
     let i_as_bytes = ByteArray {
         data: (i as u64).to_be_bytes().to_vec(),
     };
@@ -64,7 +64,7 @@ pub fn xof(r: &ByteArray, j: usize, i: usize, len: usize) -> ByteArray {
         data: (j as u64).to_be_bytes().to_vec(),
     };
 
-    let input = ByteArray::concat(&[r, &j_as_bytes, &i_as_bytes]);
+    let input = ByteArray::concat(&[r, &i_as_bytes, &j_as_bytes]);
     ByteArray {
         data: hash::shake_128(input.data, len),
     }

@@ -77,11 +77,11 @@ pub fn kyber_cpapke_enc(
 
     let (t, rho) = pk.split_at(offset);
     let t_hat = decode_to_polyvec(t);
-    let mut a = PolyMatrix3329::init_matrix(params.k, params.k);
+    let mut a_t = PolyMatrix3329::init_matrix(params.k, params.k);
 
     for i in 0..params.k {
         for j in 0..params.k {
-            a.set(i, j, parse(xof(&rho, j, i, XOF_LEN), params.n, params.q));
+            a_t.set(i, j, parse(xof(&rho, i, j, XOF_LEN), params.n, params.q));
         }
     }
 
