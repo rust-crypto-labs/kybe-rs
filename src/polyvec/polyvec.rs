@@ -1,8 +1,16 @@
+//! Polyvec
+//!
+//! Polynomial vector definition
+
 use crate::polyvec::structures::{FiniteRing, RingModule};
 
+/// Polyvec
 #[derive(Clone)]
 pub struct PolyVec<T: FiniteRing> {
+    /// Vector coefficients
     pub coefficients: Vec<T>,
+
+    /// Size of vector
     pub dimension: usize,
 }
 

@@ -1,3 +1,8 @@
+//! Structures
+//!
+//! Basic Traits for algebraic structures
+
+/// Finite Group element
 pub trait FiniteGroup: Sized + Eq {
     /// Check if the element is the additive identity
     fn is_zero(&self) -> bool;
@@ -15,7 +20,7 @@ pub trait FiniteGroup: Sized + Eq {
     fn sub(&self, other: &Self) -> Self;
 }
 
-// Finite Ring element
+/// Finite Ring element
 pub trait FiniteRing: Sized + Eq {
     /// Check if the element is the additive identity
     fn is_zero(&self) -> bool;
@@ -39,7 +44,7 @@ pub trait FiniteRing: Sized + Eq {
     fn mul(&self, other: &Self) -> Self;
 }
 
-// Finite field element
+/// Finite field element
 pub trait FiniteField: Sized + Eq {
     /// Check if the element is the additive identity
     fn is_zero(&self) -> bool;
@@ -95,7 +100,7 @@ pub trait VectorSpace<T: FiniteField> {
     /// Initialise vector type
     fn init(dimension: usize) -> Self;
 
-    // Scalar multiplication
+    /// Scalar multiplication
     fn mulf(&self, other: &T) -> Self;
 
     /// Basis vector
@@ -107,7 +112,7 @@ pub trait VectorSpace<T: FiniteField> {
     /// Get coefficient
     fn get(&self, position: usize) -> T;
 
-    // Dot product
+    /// Dot product
     fn dot(&self, other: &Self) -> T;
 }
 
@@ -134,7 +139,7 @@ pub trait RingModule<T: FiniteRing> {
     /// Initialise vector type
     fn init(dimension: usize) -> Self;
 
-    // Scalar multiplication
+    /// Scalar multiplication
     fn mulf(&self, other: &T) -> Self;
 
     /// Basis vector
@@ -146,6 +151,6 @@ pub trait RingModule<T: FiniteRing> {
     /// Get coefficient
     fn get(&self, position: usize) -> T;
 
-    // Dot product
+    /// Dot product
     fn dot(&self, other: &Self) -> T;
 }

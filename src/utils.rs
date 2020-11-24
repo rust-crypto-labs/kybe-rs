@@ -1,15 +1,17 @@
+//! Utils
+//!
+//! Various utils functions defined for the KEM anf PKE algorithms
+
 use std::convert::TryInto;
 
 use crate::{hash, ByteArray, Poly3329, F3329};
-
-////////////////// Utils ////////////////////
 
 /// Receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
 /// Algorithm 1 p. 7
 pub fn parse(bs: ByteArray, n: usize, q: usize) -> Poly3329 {
     let mut i = 0;
     let mut j = 0;
-    
+
     let mut p = Poly3329::init(n);
 
     while j < n {
@@ -41,7 +43,6 @@ pub fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
                 b += 1;
             }
         }
-
         p[i] = F3329::from_int(a - b);
     }
 
@@ -54,6 +55,7 @@ pub fn prf(s: &ByteArray, b: usize, len: usize) -> ByteArray {
         data: (b as u64).to_be_bytes().to_vec(),
     };
     let input = ByteArray::concat(&[s, &b_as_bytes]);
+
     ByteArray {
         data: hash::shake_256(input.data, len),
     }
@@ -67,8 +69,8 @@ pub fn xof(r: &ByteArray, i: usize, j: usize, len: usize) -> ByteArray {
     let j_as_bytes = ByteArray {
         data: (j as u64).to_be_bytes().to_vec(),
     };
-
     let input = ByteArray::concat(&[r, &i_as_bytes, &j_as_bytes]);
+
     ByteArray {
         data: hash::shake_128(input.data, len),
     }

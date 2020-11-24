@@ -1,3 +1,7 @@
+//! Polynomials
+//!
+//! Polynomial structure
+
 use crate::polyvec::structures::{FiniteField, FiniteRing};
 use std::{
     convert::TryInto,
@@ -105,7 +109,6 @@ where
         self.add(&other.neg())
     }
 
-    /// MOD X^N + 1  !
     fn mul(&self, other: &Self) -> Self {
         if self.is_zero() {
             return self.clone();
@@ -173,14 +176,17 @@ impl<T> Polynomial<T>
 where
     T: FiniteField + Clone + Default,
 {
+    /// Init polynomial with a default value
     pub fn init(n: usize) -> Self {
         Self::from_vec(vec![Default::default()], n)
     }
 
+    /// Return dimension of the Rq module
     pub fn dimension(&self) -> usize {
         self.n
     }
 
+    /// Init polynomial with specified coefficients
     pub fn from_vec(coefficients: Vec<T>, n: usize) -> Self {
         // For now we make it an error to input more coefficients than we can handle
         // In the future maybe we want to handle this more gracefully
@@ -201,10 +207,12 @@ where
         }
     }
 
+    /// Return polynomial degree
     pub fn degree(&self) -> i32 {
         self.degree
     }
 
+    /// Multiplication by a scalar
     pub fn mulf(&self, other: &T) -> Self {
         let mut v = vec![];
 

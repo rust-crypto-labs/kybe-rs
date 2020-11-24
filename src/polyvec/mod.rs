@@ -1,8 +1,11 @@
+//! Polyvec
+//!
+//! Definiton of basic algebraic structures (Ring, Field, Polynomial, Vector, Matrix)
 pub mod structures;
 
-pub mod matrix;
-pub mod polynomial;
-pub mod polyvec;
+mod matrix;
+mod polynomial;
+mod polyvec;
 
 pub use matrix::Matrix;
 pub use polynomial::Polynomial;

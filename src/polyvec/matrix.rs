@@ -1,3 +1,7 @@
+//! Matrix
+//!
+//! Matrix definiton to match polyvec
+
 use crate::polyvec::polyvec::PolyVec;
 use crate::polyvec::structures::{FiniteRing, RingModule};
 
@@ -34,6 +38,7 @@ where
         self.dimensions
     }
 
+    /// Return a specific row
     pub fn row(&self, index: usize) -> PolyVec<K> {
         let (cols, rows) = self.dimensions();
         let mut t = PolyVec::<K>::init(cols);
@@ -45,6 +50,7 @@ where
         t
     }
 
+    /// Return a specific column
     pub fn column(&self, index: usize) -> PolyVec<K> {
         let (cols, rows) = self.dimensions();
         let mut t = PolyVec::<K>::init(rows);
@@ -72,6 +78,7 @@ where
         self.coefficients[row * rows + column].clone()
     }
 
+    /// Perform a matrix vector multiplication
     pub fn vec_mul(&self, v: &PolyVec<K>) -> PolyVec<K> {
         let (cols, rows) = self.dimensions();
         assert!(v.dimension() == rows);

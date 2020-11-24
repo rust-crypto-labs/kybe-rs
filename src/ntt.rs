@@ -1,8 +1,12 @@
+//! Number Theoretic Trasform (NTT)
+//!
+//! NTT operations and operations performed in the NTT domain
+
 use crate::polyvec::structures::{FiniteField, FiniteRing, RingModule};
 use crate::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
 use std::convert::TryInto;
 
-// 128-roots of unity
+/// 128-roots of unity
 const ZETAS_128: [i64; 128] = [
     2285, 2571, 2970, 1812, 1493, 1422, 287, 202, 3158, 622, 1577, 182, 962, 2127, 1855, 1468, 573,
     2004, 264, 383, 2500, 1458, 1727, 3199, 2648, 1017, 732, 608, 1787, 411, 3124, 1758, 1223, 652,
@@ -14,7 +18,7 @@ const ZETAS_128: [i64; 128] = [
     2475, 2459, 478, 3221, 3021, 996, 991, 958, 1869, 1522, 1628,
 ];
 
-// 128-roots of unity inversed
+/// 128-roots of unity inversed
 const ZETAS_INV_128: [i64; 128] = [
     1701, 1807, 1460, 2371, 2338, 2333, 308, 108, 2851, 870, 854, 1510, 2535, 1278, 1530, 1185,
     1659, 1187, 3109, 874, 1335, 2111, 136, 1215, 2945, 1465, 1285, 2007, 2719, 2726, 2232, 2512,
@@ -26,6 +30,7 @@ const ZETAS_INV_128: [i64; 128] = [
     2367, 3147, 1752, 2707, 171, 3127, 3042, 1907, 1836, 1517, 359, 758, 1441,
 ];
 
+/// 7-byte reversal
 pub fn byte_rev(_i: usize) -> usize {
     unimplemented!()
 }
@@ -54,6 +59,7 @@ pub fn bcm(a: &Poly3329, b: &Poly3329) -> Poly3329 {
     p
 }
 
+/// Base case multiplivation for vectors
 pub fn bcm_vec(a: &PolyVec3329, b: &PolyVec3329) -> Poly3329 {
     let l = a.dimension();
     assert_eq!(l, b.dimension());
@@ -94,7 +100,7 @@ pub fn ntt_product_matvec(a_hat: &PolyMatrix3329, b_hat: &PolyVec3329) -> PolyVe
     rev_ntt_vec(&bcm_matrix_vec(a_hat, b_hat))
 }
 
-// Number theoretic Transform on vectors
+/// Number theoretic Transform on vectors
 pub fn ntt_vec(p: &PolyVec3329) -> PolyVec3329 {
     let mut c = vec![];
     for p_i in p.coefficients.iter() {
@@ -103,7 +109,7 @@ pub fn ntt_vec(p: &PolyVec3329) -> PolyVec3329 {
     PolyVec3329::from_vec(c)
 }
 
-// Reverse NTT on vectors
+/// Reverse NTT on vectors
 pub fn rev_ntt_vec(p_hat: &PolyVec3329) -> PolyVec3329 {
     let mut c = vec![];
     for p_i in p_hat.coefficients.iter() {
@@ -112,7 +118,7 @@ pub fn rev_ntt_vec(p_hat: &PolyVec3329) -> PolyVec3329 {
     PolyVec3329::from_vec(c)
 }
 
-// Number theoretic Transform
+/// Number theoretic Transform
 pub fn ntt(p: &Poly3329) -> Poly3329 {
     let mut a = Poly3329::init(p.dimension());
     let d: usize = p.degree().try_into().unwrap();
@@ -137,11 +143,11 @@ pub fn ntt(p: &Poly3329) -> Poly3329 {
     a
 }
 
-// Reverse NTT
+/// Reverse NTT
 pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
     let mut a = Poly3329::init(p_hat.dimension());
     let d: usize = p_hat.degree().try_into().unwrap();
-    let coeff = F3329::from_int((p_hat.degree()/2).into());
+    let coeff = F3329::from_int((p_hat.degree() / 2).into());
 
     // We assume d is even since spec requires operating mod X^2-zeta
     for i in (0..d).step_by(2) {

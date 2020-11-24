@@ -1,3 +1,8 @@
+//! Params for crystals-kyber
+//!
+//! Public params for the PKE and KEM
+
+/// Kyber public params collection
 #[derive(Clone, Copy, Debug)]
 pub struct KyberParams {
     /// Key entropy target
@@ -33,6 +38,7 @@ pub struct KyberParams {
 }
 
 impl KyberParams {
+    /// kyber-512 params
     pub const fn kyber512() -> Self {
         Self {
             n: 256,
@@ -48,6 +54,7 @@ impl KyberParams {
         }
     }
 
+    /// kyber-768 params
     pub const fn kyber768() -> Self {
         Self {
             n: 256,

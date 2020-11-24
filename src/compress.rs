@@ -1,4 +1,8 @@
-use crate::{Poly3329, PolyVec3329, PrimeField3329};
+//! Compress/Decompress functions
+//!
+//! Utils for compressing/decompressing integers, polynomials and polyvec
+
+use crate::{Poly3329, PolyVec3329, F3329};
 
 /// Compress function on coefficients, p. 6
 pub fn compress_integer(x: i64, d: usize, q: usize) -> i64 {
@@ -29,11 +33,7 @@ pub fn decompress_integer(x: i64, d: usize, q: usize) -> i64 {
 pub fn compress_poly(x: Poly3329, d: usize, q: usize) -> Poly3329 {
     let mut coeffs = vec![];
     for xi in x.coefficients.iter() {
-        coeffs.push(PrimeField3329::from_int(compress_integer(
-            xi.to_int(),
-            d,
-            q,
-        )));
+        coeffs.push(F3329::from_int(compress_integer(xi.to_int(), d, q)));
     }
     Poly3329::from_vec(coeffs, x.dimension())
 }
@@ -42,11 +42,7 @@ pub fn compress_poly(x: Poly3329, d: usize, q: usize) -> Poly3329 {
 pub fn decompress_poly(x: Poly3329, d: usize, q: usize) -> Poly3329 {
     let mut coeffs = vec![];
     for xi in x.coefficients.iter() {
-        coeffs.push(PrimeField3329::from_int(decompress_integer(
-            xi.to_int(),
-            d,
-            q,
-        )));
+        coeffs.push(F3329::from_int(decompress_integer(xi.to_int(), d, q)));
     }
     Poly3329::from_vec(coeffs, x.dimension())
 }

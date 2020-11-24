@@ -1,3 +1,30 @@
+//! This is documentation for the `kybe-rs` crate.
+//!
+//! # Introduction
+//! `kybe-rs` is an implementation of Crystals-Kyber , a post-quantum
+//! candidate submitted to NIST for standardization.
+//!
+//! This crate provides public-key encryption (`PKE`) and key encapsulation (`KEM`).
+//!
+//! # Examples
+//!
+//! ```rust
+//! use kybe_rs::{self, params};
+//! let params = params::kyber512();
+//!
+//! // Alice runs keygen, publishes pk. Value sk is secret
+//! let (sk, pk) = kybe_rs::kyber_ccakem_key_gen(params);
+//!
+//! // Bob uses pk3 to derive a key k and encapsulation c
+//! let (c, k) = kybe_rs::kyber_ccakem_enc(params, &pk);
+//!
+//! // Bob sends c to Alice
+//! // Alice uses s, c, sk3 and pk3 to recover k
+//! let k_recovered = kybe_rs::kyber_ccakem_dec(params, c, &sk);
+//!
+//! assert_eq!(k, k_recovered);
+//! ```
+
 extern crate sha3;
 
 mod bytearray;
@@ -23,16 +50,23 @@ pub use bytearray::ByteArray;
 pub use encode::{decode_to_poly, decode_to_polyvec, encode_poly, encode_polyvec};
 pub use params::KyberParams;
 
+/// Finitefield Z_q
 pub type F3329 = PrimeField3329;
+
+/// Polynomial Ring R_q = Z_q[X]/(X^n+1)
 pub type Poly3329 = Polynomial<F3329>;
+
+/// Polynomial vector R_q^k
 pub type PolyVec3329 = PolyVec<Poly3329>;
+
+/// Polynomial matrix R_q^(k*k)
 pub type PolyMatrix3329 = Matrix<Poly3329>;
 
+/// Default length used for XOF
 const XOF_LEN: usize = 4000;
-////////////// PKE /////////////////////////
 
-// Kyber CPAPKE Key Generation => (secret key, public key)
-// Algorithm 4 p. 9
+/// Kyber CPAPKE Key Generation => (secret key, public key)
+/// Algorithm 4 p. 9
 pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let k = params.k;
     let d = ByteArray::random(32);
@@ -64,7 +98,8 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     (sk, pk)
 }
 
-// Encryption : public key, message, random coins => ciphertext
+/// Kyber CPAPKE Encryption : public key, message, random coins => ciphertext
+/// Algorithm 5 p. 10
 pub fn kyber_cpapke_enc(
     params: KyberParams,
     pk: &ByteArray,
@@ -104,7 +139,8 @@ pub fn kyber_cpapke_enc(
     c1.append(&c2)
 }
 
-// Decryption : secret key, ciphertext => message
+/// Kyber CPAPKE Decryption : secret key, ciphertext => message
+/// Algorithm 6 p. 10
 pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> ByteArray {
     let offset = params.du * params.k * params.n / 8;
     let (c1, c2) = c.split_at(offset);
@@ -122,33 +158,37 @@ pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> B
     ))
 }
 
-////////////// KEM /////////////////////////
-
-// Kyber CCAKEM Key Generation => (secret key, public key)
-// Algorithm 7 p. 11
+/// Kyber CCAKEM Key Generation => (secret key, public key)
+/// Algorithm 7 p. 11
 pub fn kyber_ccakem_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let z = ByteArray::random(32);
+
     let (pk, sk) = kyber_cpapke_key_gen(params);
+
     let (h1, h2) = h(&pk);
     let sk = ByteArray::concat(&[&sk, &pk, &h1, &h2, &z]);
+
     (sk, pk)
 }
 
-// Encryption : public key  => ciphertext, Shared Key
-// Algorithm 8 p. 11
+/// Encryption : public key  => ciphertext, Shared Key
+/// Algorithm 8 p. 11
 pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, ByteArray) {
     let m = ByteArray::random(32);
     let (m1, m2) = h(&m);
     let (h1, h2) = h(pk);
     let (k, r) = g(ByteArray::concat(&[&m1, &m2, &h1, &h2]));
+
     let c = kyber_cpapke_enc(params, pk, &m1.append(&m2), r);
+
     let (h1, h2) = h(&c);
     let k = kdf(&ByteArray::concat(&[&k, &h1, &h2]), params.sk_size);
 
     (c, k)
 }
 
-// Decryption : secret key, ciphertext => Shared Key
+/// Decryption : secret key, ciphertext => Shared Key
+/// Algorithm 9 p. 11
 pub fn kyber_ccakem_dec(params: KyberParams, c: &ByteArray, sk: &ByteArray) -> ByteArray {
     // Spliting sk = (sk'||pk||H(pk)||z)
     let (_, rem) = sk.split_at(12 * params.k * params.n / 8);
