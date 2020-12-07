@@ -11,6 +11,13 @@ pub struct ByteArray {
 }
 
 impl ByteArray {
+    /// Generate an empty ByteArray
+    pub const fn new() -> Self {
+        Self {
+            data: Vec::new(),
+        }
+    }
+
     /// Generate a ByteArrey from a slice of bytes
     pub fn from_bytes(data: &[u8]) -> Self {
         Self {
@@ -59,9 +66,13 @@ impl ByteArray {
 
     /// Trim the ByteArray from the first num bytes
     pub fn skip(&self, num: usize) -> Self {
-        Self {
-            data: self.data.iter().cloned().skip(num).collect(),
-        }
+        let data = if num < self.data.len() {
+            Vec::from(&self.data[..num])
+        } else {
+            Vec::new()
+        };
+
+        Self { data }
     }
 
     /// Split the ByteArray at the position pos

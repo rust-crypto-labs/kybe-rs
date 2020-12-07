@@ -70,13 +70,13 @@ const XOF_LEN: usize = 4000;
 pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let k = params.k;
     let d = ByteArray::random(32);
-    let (rho, sigma) = g(d);
+    let (rho, sigma) = g(&d);
 
     let mut a = PolyMatrix3329::init_matrix(k, k);
 
     for i in 0..k {
         for j in 0..k {
-            a.set(i, j, parse(xof(&rho, j, i, XOF_LEN), params.n, params.q));
+            a.set(i, j, parse(&xof(&rho, j, i, XOF_LEN), params.n, params.q));
         }
     }
 
@@ -115,7 +115,7 @@ pub fn kyber_cpapke_enc(
 
     for i in 0..params.k {
         for j in 0..params.k {
-            a_t.set(i, j, parse(xof(&rho, i, j, XOF_LEN), params.n, params.q));
+            a_t.set(i, j, parse(&xof(&rho, i, j, XOF_LEN), params.n, params.q));
         }
     }
 
@@ -177,7 +177,7 @@ pub fn kyber_ccakem_enc(params: KyberParams, pk: &ByteArray) -> (ByteArray, Byte
     let m = ByteArray::random(32);
     let (m1, m2) = h(&m);
     let (h1, h2) = h(pk);
-    let (k, r) = g(ByteArray::concat(&[&m1, &m2, &h1, &h2]));
+    let (k, r) = g(&ByteArray::concat(&[&m1, &m2, &h1, &h2]));
 
     let c = kyber_cpapke_enc(params, pk, &m1.append(&m2), r);
 
@@ -196,7 +196,7 @@ pub fn kyber_ccakem_dec(params: KyberParams, c: &ByteArray, sk: &ByteArray) -> B
     let (hash, z) = rem.split_at(32);
 
     let m = kyber_cpapke_dec(params, sk, c);
-    let (k, r) = g(m.append(&hash));
+    let (k, r) = g(&m.append(&hash));
     let c_prime = kyber_cpapke_enc(params, &pk, &m, r);
 
     let (h1, h2) = h(c);

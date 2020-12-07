@@ -25,7 +25,7 @@ pub fn decode_to_poly(bs: ByteArray) -> Poly3329 {
 
 /// Serialize Poly into ByteArray
 pub fn encode_poly(p: Poly3329) -> ByteArray {
-    let b = ByteArray { data: vec![] };
+    let b = ByteArray::new();
 
     for i in 0..256 {
         let val = p[i].to_int().to_le_bytes();
@@ -51,7 +51,7 @@ pub fn decode_to_polyvec(bs: ByteArray) -> PolyVec3329 {
 
 /// Serialize PolyVec into ByteArray
 pub fn encode_polyvec(p_vec: PolyVec3329) -> ByteArray {
-    let b = ByteArray { data: vec![] };
+    let b = ByteArray::new();
     let ell = p_vec.dimension();
 
     for i in 0..ell {
