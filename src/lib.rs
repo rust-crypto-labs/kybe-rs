@@ -37,7 +37,6 @@ mod polyvec;
 mod primefield;
 mod utils;
 
-
 use ntt::{bcm_matrix_vec, ntt_product_matvec, ntt_product_vec, ntt_vec};
 use polyvec::{
     structures::{FiniteRing, RingModule},
@@ -47,8 +46,8 @@ use primefield::PrimeField3329;
 use utils::{cbd, g, h, kdf, parse, prf, xof};
 
 pub use bytearray::ByteArray;
-pub use encode::{decode_to_poly, decode_to_polyvec, encode_poly, encode_polyvec};
 pub use compress::{compress_poly, compress_polyvec, decompress_poly, decompress_polyvec};
+pub use encode::{decode_to_poly, decode_to_polyvec, encode_poly, encode_polyvec};
 pub use params::KyberParams;
 
 /// Finitefield Z_q

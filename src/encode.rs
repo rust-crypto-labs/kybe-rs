@@ -15,7 +15,7 @@ pub fn decode_to_poly(bs: ByteArray, ell: usize) -> Poly3329 {
     for i in 0..256 {
         for j in 0..ell {
             if bs.get_bit(i * ell + j) {
-                f[i] = f[i].add(&F3329::from_int(2 << j));
+                f[i] = f[i].add(&F3329::from_int(1 << j));
             }
         }
     }

@@ -56,10 +56,9 @@ impl ByteArray {
 
     /// Get the value of the bit at position pos
     pub fn get_bit(&self, pos: usize) -> bool {
-        let byte_index = pos >> 3;
-        let bit_in_byte = pos & 0b111;
-        let mask = 2 << bit_in_byte;
-        !(self.data[byte_index] & mask == 0)
+        let (index, offset) = (pos / 8, pos % 8);
+        let mask = 1 << offset;
+        !((self.data[index] & mask) == 0)
     }
 
     /// Trim the ByteArray from the first num bytes
