@@ -146,6 +146,12 @@ pub fn ntt(p: &Poly3329) -> Poly3329 {
 /// Reverse NTT
 pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
     let mut a = Poly3329::init(p_hat.dimension());
+
+    if p_hat.degree() < 0 {
+        // Zero polynomial's NTT is zero
+        return p_hat.clone()
+    }
+
     let d: usize = p_hat.degree().try_into().unwrap();
     let coeff = F3329::from_int((p_hat.degree() / 2).into());
 
