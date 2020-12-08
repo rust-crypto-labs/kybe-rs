@@ -59,7 +59,7 @@ where
         // Otherwise the degree is positive
         let degree = self.degree();
         let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); degree.try_into().unwrap()];
+        let mut coefficients = vec![t.zero(); (degree+1).try_into().unwrap()];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = c.neg();
         }

@@ -4,8 +4,8 @@ use kybe_rs;
 fn encode_decode_poly() {
     use kybe_rs::{decode_to_poly, encode_poly, Poly3329};
     let original = Poly3329::from_vec(vec![Default::default(); 256], 256);
-    let encoded = encode_poly(original.clone());
-    let decoded = decode_to_poly(encoded);
+    let encoded = encode_poly(original.clone(), 12);
+    let decoded = decode_to_poly(encoded, 12);
     assert!(decoded == original);
 }
 
