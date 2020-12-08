@@ -10,6 +10,15 @@ fn encode_decode_poly() {
 }
 
 #[test]
+fn compress_decompress_poly() {
+    use kybe_rs::{compress_poly, decompress_poly, Poly3329};
+    let original = Poly3329::from_vec(vec![Default::default(); 256], 256);
+    let encoded = compress_poly(original.clone(), 12, 3329);
+    let decoded = decompress_poly(encoded, 12, 3329);
+    assert!(decoded == original);
+}
+
+#[test]
 fn pke_keygen_cpapke() {
     let params = kybe_rs::KyberParams::kyber512();
     kybe_rs::kyber_cpapke_key_gen(params);
