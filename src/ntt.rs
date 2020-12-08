@@ -30,9 +30,9 @@ const ZETAS_INV_128: [i64; 128] = [
     2367, 3147, 1752, 2707, 171, 3127, 3042, 1907, 1836, 1517, 359, 758, 1441,
 ];
 
-/// 7-byte reversal
-pub fn byte_rev(_i: usize) -> usize {
-    unimplemented!()
+/// 7-byte reversal (to impleme)
+pub fn byte_rev(i: usize) -> usize {
+    i
 }
 
 /// Basecase multiplication between polynomials (p 7)
@@ -46,7 +46,7 @@ pub fn bcm(a: &Poly3329, b: &Poly3329) -> Poly3329 {
 
     // We assume d is even since spec requires operating mod X^2-zeta
     for i in (0..d).step_by(2) {
-        let zeta = F3329::from_int(ZETAS_128[2 * byte_rev(i / 2) + 1]);
+        let zeta = F3329::from_int(ZETAS_128[(2 * byte_rev(i / 2) + 1) % 128]);
 
         let p01 = a[i].mul(&b[i]);
         let p02 = a[i + 1].mul(&b[i + 1]).mul(&zeta);
@@ -125,16 +125,16 @@ pub fn ntt(p: &Poly3329) -> Poly3329 {
 
     // We assume d is even since spec requires operating mod X^2-zeta
     for i in (0..d).step_by(2) {
-        let mut p0 = F3329::default();
-        let mut p1 = F3329::default();
+        let mut p0 = p[0];
+        let mut p1 = p[1];
 
-        for j in (0..d).step_by(2) {
-            let zeta = F3329::from_int(ZETAS_128[(2 * byte_rev(i / 2) + 1) * j]);
+        for j in (2..d).step_by(2) {
+            let zeta = F3329::from_int(ZETAS_128[((2 * byte_rev(i / 2) + 1) * j) % 128]);
             let c0 = p[j].mul(&zeta);
             let c1 = p[j + 1].mul(&zeta);
 
             p0 = p0.add(&c0);
-            p1 = p1.add(&c1)
+            p1 = p1.add(&c1);
         }
         a[i] = p0;
         a[i + 1] = p1;
@@ -150,17 +150,17 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
     let coeff = F3329::from_int((p_hat.degree() / 2).into());
 
     // We assume d is even since spec requires operating mod X^2-zeta
-    for i in (0..d).step_by(2) {
-        let mut p0 = F3329::default();
-        let mut p1 = F3329::default();
+    for i in (2..d).step_by(2) {
+        let mut p0 = p_hat[0];
+        let mut p1 = p_hat[1];
 
         for j in (0..d).step_by(2) {
-            let zeta = F3329::from_int(ZETAS_INV_128[(2 * byte_rev(j / 2) + 1) * i]);
+            let zeta = F3329::from_int(ZETAS_INV_128[((2 * byte_rev(j / 2) + 1) * i) % 128]);
             let c0 = p_hat[j].mul(&zeta);
             let c1 = p_hat[j + 1].mul(&zeta);
 
             p0 = p0.add(&c0);
-            p1 = p1.add(&c1)
+            p1 = p1.add(&c1);
         }
         a[i] = p0.div(&coeff).unwrap();
         a[i + 1] = p1.div(&coeff).unwrap();

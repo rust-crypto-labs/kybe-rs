@@ -75,10 +75,7 @@ pub fn h(r: &ByteArray) -> (ByteArray, ByteArray) {
     let hash = hash::sha3_256(&r.data);
     let (part0, part1) = hash.split_at(16);
 
-    (
-        ByteArray::from_bytes(&part0),
-        ByteArray::from_bytes(&part1),
-    )
+    (ByteArray::from_bytes(&part0), ByteArray::from_bytes(&part1))
 }
 
 /// Hash function => SHA3-512
@@ -86,10 +83,7 @@ pub fn g(r: &ByteArray) -> (ByteArray, ByteArray) {
     let hash = hash::sha3_512(&r.data);
     let (part0, part1) = hash.split_at(32);
 
-    (
-        ByteArray::from_bytes(&part0),
-        ByteArray::from_bytes(&part1),
-    )
+    (ByteArray::from_bytes(&part0), ByteArray::from_bytes(&part1))
 }
 
 /// Key Derivation function => SHAKE-256

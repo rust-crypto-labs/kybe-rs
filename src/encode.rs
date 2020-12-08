@@ -25,23 +25,23 @@ pub fn decode_to_poly(bs: ByteArray) -> Poly3329 {
 
 /// Serialize Poly into ByteArray
 pub fn encode_poly(p: Poly3329) -> ByteArray {
-    let b = ByteArray::new();
+    let mut b = ByteArray::new();
 
     for i in 0..256 {
         let val = p[i].to_int().to_le_bytes();
-        b.append(&ByteArray::from_bytes(&val));
+        b = b.append(&ByteArray::from_bytes(&val));
     }
     b
 }
 
 /// Deserialize ByteArray into PolyVec
 pub fn decode_to_polyvec(bs: ByteArray) -> PolyVec3329 {
-    let ell = bs.data.len() / 256;
+    let ell = bs.data.len() / (32 * 12);
     let mut b = bs;
     let mut p_vec = PolyVec3329::from_vec(vec![Poly3329::init(256); ell]);
 
     for i in 0..ell {
-        let (a, c) = b.split_at(ell);
+        let (a, c) = b.split_at(32 * 12);
         p_vec.set(i, decode_to_poly(a));
         b = c.clone();
     }
@@ -51,12 +51,12 @@ pub fn decode_to_polyvec(bs: ByteArray) -> PolyVec3329 {
 
 /// Serialize PolyVec into ByteArray
 pub fn encode_polyvec(p_vec: PolyVec3329) -> ByteArray {
-    let b = ByteArray::new();
+    let mut b = ByteArray::new();
     let ell = p_vec.dimension();
 
     for i in 0..ell {
         let p = p_vec.get(i);
-        b.append(&encode_poly(p));
+        b = b.append(&encode_poly(p));
     }
 
     b

@@ -78,29 +78,28 @@ where
             return self.clone();
         }
 
-        let mut degree = self.degree().max(other.degree);
+        let mut degree: usize = self.degree().max(other.degree).try_into().unwrap();
         let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); degree.try_into().unwrap()];
+        let mut coefficients = vec![t.zero(); degree + 1];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = other.coefficients[i].add(c);
         }
 
         // Diminish degree if leading coefficient is zero
-        let mut leading: usize = degree.try_into().unwrap();
-        leading = leading - 1;
-        while degree > 0 && coefficients[leading].eq(&t.zero()) {
+        let mut leading = &coefficients[degree];
+        while degree > 0 && leading.eq(&t.zero()) {
             degree -= 1;
-            leading -= 1;
+            leading = &coefficients[degree];
         }
 
         // Check whether the result is zero
-        if leading == 0 && coefficients[0].eq(&t.zero()) {
-            degree = -1;
+        if degree == 0 && leading.eq(&t.zero()) {
+            return self.zero();
         }
 
         Polynomial {
             coefficients,
-            degree,
+            degree: degree as i32,
             n: self.n,
         }
     }
@@ -178,7 +177,7 @@ where
 {
     /// Init polynomial with a default value
     pub fn init(n: usize) -> Self {
-        Self::from_vec(vec![Default::default()], n)
+        Self::from_vec(vec![Default::default(); n], n)
     }
 
     /// Return dimension of the Rq module
@@ -192,7 +191,7 @@ where
         // In the future maybe we want to handle this more gracefully
         assert!(coefficients.len() <= n);
 
-        let mut degree = n.min(coefficients.len()).try_into().unwrap();
+        let mut degree = (n.min(coefficients.len()) - 1).try_into().unwrap();
 
         let t: T = Default::default();
         // Check for zero polynomial

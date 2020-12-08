@@ -13,9 +13,7 @@ pub struct ByteArray {
 impl ByteArray {
     /// Generate an empty ByteArray
     pub const fn new() -> Self {
-        Self {
-            data: Vec::new(),
-        }
+        Self { data: Vec::new() }
     }
 
     /// Generate a ByteArrey from a slice of bytes
