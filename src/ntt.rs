@@ -149,7 +149,7 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
 
     if p_hat.degree() < 0 {
         // Zero polynomial's NTT is zero
-        return p_hat.clone()
+        return p_hat.clone();
     }
 
     let d: usize = p_hat.degree().try_into().unwrap();

@@ -14,9 +14,9 @@ pub fn compress_integer(x: i64, d: usize, q: usize) -> i64 {
 
     // We now need to compute the mod+ variant; this is not
     // constant time
-    if 2 * c >= m {
-        c -= m;
-    }
+    //if 2 * c >= m {
+    //    c -= m;
+    //}
 
     c
 }

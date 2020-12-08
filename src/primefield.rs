@@ -40,8 +40,10 @@ impl FiniteField for PrimeField3329 {
     }
 
     fn sub(&self, other: &Self) -> Self {
+        let o = Self::order() as i64;
+
         Self {
-            val: (self.val - other.val) % (Self::order() as i64),
+            val: (self.val - other.val + o) % o,
         }
     }
 

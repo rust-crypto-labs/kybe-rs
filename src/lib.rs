@@ -92,8 +92,8 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
 
     let t_hat = bcm_matrix_vec(&a, &s_hat).add(&e_hat);
 
-    let sk = encode_polyvec(t_hat, 12).append(&rho);
-    let pk = encode_polyvec(s_hat, 12);
+    let pk = encode_polyvec(t_hat, 12).append(&rho);
+    let sk = encode_polyvec(s_hat, 12);
 
     (sk, pk)
 }
@@ -150,12 +150,10 @@ pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> B
     let s = decode_to_polyvec(sk.clone(), 12);
 
     let u_hat = ntt_vec(&u);
+    let x = ntt_product_vec(&s, &u_hat);
+    let p = v.sub(&x);
 
-    encode_poly(compress_poly(
-        v.sub(&ntt_product_vec(&s, &u_hat)),
-        1,
-        params.q,
-    ), 1)
+    encode_poly(compress_poly(p, 1, params.q), 1)
 }
 
 /// Kyber CCAKEM Key Generation => (secret key, public key)

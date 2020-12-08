@@ -24,16 +24,26 @@ pub fn decode_to_poly(bs: ByteArray, ell: usize) -> Poly3329 {
 
 /// Serialize Poly into ByteArray
 pub fn encode_poly(p: Poly3329, ell: usize) -> ByteArray {
-    let mut b = ByteArray::new();
-    let (q,r) = (ell / 8, ell % 8);
-    let m = (2 << r) - 1;
+    let mut b = vec![];
+    let mut c: u8 = 0;
 
     for i in 0..256 {
-        let mut v = p[i].to_int().to_le_bytes();
-        v[q] &= m;
-        b = b.append(&ByteArray::from_bytes(v.get(0..=q).unwrap()));
+        let mut v = p[i].to_int();
+        for j in 0..ell {
+            let s = (i * ell + j) % 8;
+            if s == 0 && !(i == 0 && j == 0) {
+                b.push(c);
+                c = 0;
+            }
+            if (v & 1) == 1 {
+                let a = 1 << s;
+                c += a as u8;
+            }
+            v >>= 1;
+        }
     }
-    b
+    b.push(c);
+    ByteArray::from_bytes(b.as_slice())
 }
 
 /// Deserialize ByteArray into PolyVec
