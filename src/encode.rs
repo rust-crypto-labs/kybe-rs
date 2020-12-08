@@ -11,12 +11,12 @@ use crate::{
 /// Algorithm 3 p. 8
 pub fn decode_to_poly(bs: ByteArray) -> Poly3329 {
     let ell = bs.data.len() / 32;
-    let f = vec![F3329::from_int(0); 256];
+    let mut f = vec![F3329::from_int(0); 256];
 
     for i in 0..256 {
         for j in 0..ell {
             if bs.get_bit(i * ell + j) {
-                f[i].add(&F3329::from_int(2 << j));
+                f[i] = f[i].add(&F3329::from_int(2 << j));
             }
         }
     }
