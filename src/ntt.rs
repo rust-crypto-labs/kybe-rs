@@ -183,3 +183,25 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
 
     a
 }
+
+#[test]
+fn rev_then_ntt() {
+    let mut u_bold = Poly3329::from_vec(vec![Default::default(); 256], 256);
+    for i in 0..256 {
+        u_bold[i] = F3329::from_int(i as i64);
+    }
+    let u = rev_ntt(&u_bold);
+
+    assert_eq!(u_bold.coefficients, base_ntt(&u).coefficients)
+}
+
+#[test]
+fn ntt_then_rev() {
+    let mut u = Poly3329::from_vec(vec![Default::default(); 256], 256);
+    for i in 0..256 {
+        u[i] = F3329::from_int(i as i64);
+    }
+    let u_bold = base_ntt(&u);
+
+    assert_eq!(u.coefficients, rev_ntt(&u_bold).coefficients)
+}
