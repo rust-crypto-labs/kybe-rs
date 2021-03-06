@@ -59,7 +59,7 @@ impl FiniteField for PrimeField3329 {
         }
         let mut val = self.one();
 
-        for _i in 1..(Self::order()-1) {
+        for _i in 1..(Self::order() - 1) {
             val = val.mul(&self)
         }
 

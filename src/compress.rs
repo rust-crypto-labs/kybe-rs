@@ -10,15 +10,7 @@ pub fn compress_integer(x: i64, d: usize, q: usize) -> i64 {
     let f = (m as f64) / (q as f64);
     let f = f * (x as f64);
 
-    let mut c = (f.round() as i64) % m;
-
-    // We now need to compute the mod+ variant; this is not
-    // constant time
-    //if 2 * c >= m {
-    //    c -= m;
-    //}
-
-    c
+    (f.round() as i64) % m
 }
 
 /// Decompress function on coefficients, p. 6
