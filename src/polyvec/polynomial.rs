@@ -1,65 +1,106 @@
-use crate::polyvec::ff::{FiniteField, FiniteRing};
-use std::ops::{Index, IndexMut};
+//! Polynomials
+//!
+//! Polynomial structure
 
+use crate::polyvec::structures::{FiniteField, FiniteRing};
+use std::{
+    convert::TryInto,
+    ops::{Index, IndexMut},
+};
+
+/// Represents a polynomial in the ring T[X]/(X^n + 1)
 #[derive(Clone)]
-pub struct Polynomial<T: FiniteField> {
-    coefficients: Vec<T>,
-    degree: usize,
+pub struct Polynomial<T>
+where
+    T: FiniteField + Default,
+{
+    /// Coefficients of the polynomial
+    pub coefficients: Vec<T>,
+
+    /// Degree of the polynomial (the zero polynomial has degree < 0)
+    pub degree: i32,
+
+    /// Dimension of the ring as as a vector space over T
+    pub n: usize,
 }
 
 impl<T> FiniteRing for Polynomial<T>
 where
-    T: FiniteField + Clone,
+    T: FiniteField + Clone + Default,
 {
     fn is_zero(&self) -> bool {
-        self.eq(&Self::zero())
+        self.degree() < 0
     }
 
-    fn dimension() -> usize {
-        T::dimension()
-    }
-
-    fn zero() -> Self {
-        Self {
-            coefficients: vec![T::zero()],
-            degree: 0,
+    fn zero(&self) -> Self {
+        let t: T = Default::default();
+        Polynomial {
+            coefficients: vec![t.zero()],
+            degree: -1,
+            n: self.n,
         }
     }
 
-    fn one() -> Self {
-        Self {
-            coefficients: vec![T::one()],
+    fn one(&self) -> Self {
+        let t: T = Default::default();
+        Polynomial {
+            coefficients: vec![t.one()],
             degree: 0,
+            n: self.n,
         }
     }
 
     fn neg(&self) -> Self {
+        // If the polynomial is already zero, do nothing
+        if self.is_zero() {
+            return self.clone();
+        }
+
+        // Otherwise the degree is positive
         let degree = self.degree();
-        let mut coefficients = vec![T::zero(); degree];
+        let t: T = Default::default();
+        let mut coefficients = vec![t.zero(); (degree + 1).try_into().unwrap()];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = c.neg();
         }
-        Self {
+        Polynomial {
             coefficients,
             degree,
+            n: self.n,
         }
     }
 
     fn add(&self, other: &Self) -> Self {
-        let mut degree = self.degree().max(other.degree);
-        let mut coefficients = vec![T::zero(); degree];
+        if self.is_zero() {
+            return other.clone();
+        }
+        if other.is_zero() {
+            return self.clone();
+        }
+
+        let mut degree: usize = self.degree().max(other.degree).try_into().unwrap();
+        let t: T = Default::default();
+        let mut coefficients = vec![t.zero(); degree + 1];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = other.coefficients[i].add(c);
         }
 
         // Diminish degree if leading coefficient is zero
-        while degree > 0 && coefficients[degree - 1].eq(&T::zero()) {
+        let mut leading = &coefficients[degree];
+        while degree > 0 && leading.eq(&t.zero()) {
             degree -= 1;
+            leading = &coefficients[degree];
         }
 
-        Self {
+        // Check whether the result is zero
+        if degree == 0 && leading.eq(&t.zero()) {
+            return self.zero();
+        }
+
+        Polynomial {
             coefficients,
-            degree,
+            degree: degree as i32,
+            n: self.n,
         }
     }
 
@@ -67,22 +108,52 @@ where
         self.add(&other.neg())
     }
 
-    /// MOD X^N + 1  !
-    fn mul(&self, _other: &Self) -> Self {
-        unimplemented!()
-    }
+    fn mul(&self, other: &Self) -> Self {
+        if self.is_zero() {
+            return self.clone();
+        }
+        if other.is_zero() {
+            return other.clone();
+        }
 
-    fn into_bytes(self) -> Vec<u8> {
-        unimplemented!()
-    }
+        let t: T = Default::default();
+        let coeffs = vec![t.zero(); self.n];
 
-    fn from_bytes(_bytes: &[u8]) -> Result<Self, String> {
-        unimplemented!()
+        for (i, a) in self.coefficients.iter().enumerate() {
+            for (j, b) in other.coefficients.iter().enumerate() {
+                let c = a.mul(&b);
+                let k = i + j;
+                if k < self.n {
+                    coeffs[k].add(&c);
+                } else {
+                    // X^n = -1
+                    coeffs[k % self.n].sub(&c);
+                }
+            }
+        }
+
+        // Reduce degree if appropriate
+        let mut leading = self.n - 1;
+        while leading > 0 && coeffs[leading].eq(&t.zero()) {
+            leading -= 1;
+        }
+
+        // Check for null polynomial (shouldn't happen but still)
+        if leading == 0 && coeffs[0].eq(&t.zero()) {
+            return self.zero();
+        }
+
+        Self {
+            coefficients: coeffs,
+            degree: leading.try_into().unwrap(),
+            n: self.n,
+        }
     }
 }
+
 impl<T> PartialEq for Polynomial<T>
 where
-    T: FiniteField,
+    T: FiniteField + Default,
 {
     fn eq(&self, other: &Self) -> bool {
         if self.degree != other.degree {
@@ -98,37 +169,62 @@ where
     }
 }
 
-impl<T> Eq for Polynomial<T> where T: FiniteField {}
+impl<T> Eq for Polynomial<T> where T: FiniteField + Default {}
 
 impl<T> Polynomial<T>
 where
-    T: FiniteField + Clone,
+    T: FiniteField + Clone + Default,
 {
-    pub fn from_vec(coefficients: Vec<T>) -> Self {
-        let degree = coefficients.len();
-        Self {
+    /// Init polynomial with a default value
+    pub fn init(n: usize) -> Self {
+        Self::from_vec(vec![Default::default(); n], n)
+    }
+
+    /// Return dimension of the Rq module
+    pub fn dimension(&self) -> usize {
+        self.n
+    }
+
+    /// Init polynomial with specified coefficients
+    pub fn from_vec(coefficients: Vec<T>, n: usize) -> Self {
+        // For now we make it an error to input more coefficients than we can handle
+        // In the future maybe we want to handle this more gracefully
+        assert!(coefficients.len() <= n);
+
+        let mut degree = (n.min(coefficients.len()) - 1).try_into().unwrap();
+
+        let t: T = Default::default();
+        // Check for zero polynomial
+        if degree == 0 && coefficients[0].eq(&t.zero()) {
+            degree = -1;
+        }
+
+        Polynomial {
             coefficients,
             degree,
+            n,
         }
     }
 
-    pub fn degree(&self) -> usize {
+    /// Return polynomial degree
+    pub fn degree(&self) -> i32 {
         self.degree
     }
 
+    /// Multiplication by a scalar
     pub fn mulf(&self, other: &T) -> Self {
         let mut v = vec![];
 
-        for i in 0..self.degree() {
+        for i in 0..self.degree().try_into().unwrap() {
             v[i] = self.coefficients[i].mul(other)
         }
-        Self::from_vec(v)
+        Self::from_vec(v, self.n)
     }
 }
 
 impl<T> Index<usize> for Polynomial<T>
 where
-    T: FiniteField,
+    T: FiniteField + Default,
 {
     type Output = T;
 
@@ -139,9 +235,18 @@ where
 
 impl<T> IndexMut<usize> for Polynomial<T>
 where
-    T: FiniteField,
+    T: FiniteField + Default,
 {
     fn index_mut(&mut self, index: usize) -> &mut T {
         &mut self.coefficients[index]
+    }
+}
+
+impl<T> Default for Polynomial<T>
+where
+    T: FiniteField + Clone + Default,
+{
+    fn default() -> Self {
+        Self::init(1)
     }
 }
