@@ -7,7 +7,7 @@ use crate::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
 use std::convert::TryInto;
 
 /// 256-roots of unity
-const ZETAS_256: [i64; 256] = [
+const ZETAS_256: [usize; 256] = [
     1, 17, 289, 1584, 296, 1703, 2319, 2804, 1062, 1409, 650, 1063, 1426, 939, 2647, 1722, 2642,
     1637, 1197, 375, 3046, 1847, 1438, 1143, 2786, 756, 2865, 2099, 2393, 733, 2474, 2110, 2580,
     583, 3253, 2037, 1339, 2789, 807, 403, 193, 3281, 2513, 2773, 535, 2437, 1481, 1874, 1897,
@@ -158,12 +158,12 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
     }
 
     let d: usize = p_hat.degree().try_into().unwrap();
-    let coeff = F3329::from_int(((p_hat.degree() / 2) + 1).into());
+    let coeff = F3329::from_int((d / 2) + 1);
 
     for i in 0..=d / 2 {
         let mut p0 = p_hat[0];
         let mut p1 = p_hat[1];
-        let z = F3329::from_int(ZETAS_256[(256 - i) % 256]);
+        let z = F3329::from_int(ZETAS_256[((256 - i) % 256)]);
 
         for j in 1..=d / 2 {
             let index = (2 * byte_rev(i) * j) % 256;
@@ -188,7 +188,7 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
 fn rev_then_ntt() {
     let mut u_bold = Poly3329::from_vec(vec![Default::default(); 256], 256);
     for i in 0..256 {
-        u_bold[i] = F3329::from_int(i as i64);
+        u_bold[i] = F3329::from_int(i);
     }
     let u = rev_ntt(&u_bold);
 
@@ -199,7 +199,7 @@ fn rev_then_ntt() {
 fn ntt_then_rev() {
     let mut u = Poly3329::from_vec(vec![Default::default(); 256], 256);
     for i in 0..256 {
-        u[i] = F3329::from_int(i as i64);
+        u[i] = F3329::from_int(i);
     }
     let u_bold = base_ntt(&u);
 
