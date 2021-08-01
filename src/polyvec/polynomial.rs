@@ -4,10 +4,7 @@
 
 use crate::polyvec::structures::{FiniteField, FiniteRing};
 use alloc::vec::Vec;
-use core::{
-    convert::TryInto,
-    ops::{Index, IndexMut},
-};
+use core::ops::{Index, IndexMut};
 
 /// Represents a polynomial in the ring T[X]/(X^n + 1)
 #[derive(Clone)]
@@ -19,7 +16,7 @@ where
     pub coefficients: Vec<T>,
 
     /// Degree of the polynomial (the zero polynomial has degree < 0)
-    pub degree: i32,
+    pub degree: Option<usize>,
 
     /// Dimension of the ring as as a vector space over T
     pub n: usize,
@@ -30,14 +27,14 @@ where
     T: FiniteField + Clone + Default,
 {
     fn is_zero(&self) -> bool {
-        self.degree() < 0
+        self.degree().is_none()
     }
 
     fn zero(&self) -> Self {
         let t: T = Default::default();
         Polynomial {
             coefficients: vec![t.zero()],
-            degree: -1,
+            degree: None,
             n: self.n,
         }
     }
@@ -46,7 +43,7 @@ where
         let t: T = Default::default();
         Polynomial {
             coefficients: vec![t.one()],
-            degree: 0,
+            degree: Some(0),
             n: self.n,
         }
     }
@@ -54,32 +51,31 @@ where
     fn neg(&self) -> Self {
         // If the polynomial is already zero, do nothing
         if self.is_zero() {
-            return self.clone();
+            return self.zero();
         }
+        // Unwraps safely since the case None has been tested above
+        let degree = self.degree().unwrap();
 
-        // Otherwise the degree is positive
-        let degree = self.degree();
         let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); (degree + 1).try_into().unwrap()];
+        let mut coefficients = vec![t.zero(); degree + 1];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = c.neg();
         }
         Polynomial {
             coefficients,
-            degree,
+            degree: Some(degree),
             n: self.n,
         }
     }
 
     fn add(&self, other: &Self) -> Self {
-        if self.is_zero() {
-            return other.clone();
+        // If one of the polynomial is already zero, do nothing
+        if self.is_zero() || other.is_zero() {
+            return other.zero();
         }
-        if other.is_zero() {
-            return self.clone();
-        }
+        // Unwraps safely since the case None has been tested above
+        let mut degree: usize = self.degree().unwrap().max(other.degree().unwrap());
 
-        let mut degree: usize = self.degree().max(other.degree).try_into().unwrap();
         let t: T = Default::default();
         let mut coefficients = vec![t.zero(); degree + 1];
         for (i, c) in self.coefficients.iter().enumerate() {
@@ -100,7 +96,7 @@ where
 
         Polynomial {
             coefficients,
-            degree: degree as i32,
+            degree: Some(degree),
             n: self.n,
         }
     }
@@ -134,19 +130,19 @@ where
         }
 
         // Reduce degree if appropriate
-        let mut leading = self.n - 1;
-        while leading > 0 && coeffs[leading].eq(&t.zero()) {
-            leading -= 1;
+        let mut degree = self.n - 1;
+        while degree > 0 && coeffs[degree].eq(&t.zero()) {
+            degree -= 1;
         }
 
         // Check for null polynomial (shouldn't happen but still)
-        if leading == 0 && coeffs[0].eq(&t.zero()) {
+        if degree == 0 && coeffs[0].eq(&t.zero()) {
             return self.zero();
         }
 
         Self {
             coefficients: coeffs,
-            degree: leading.try_into().unwrap(),
+            degree: Some(degree),
             n: self.n,
         }
     }
@@ -187,36 +183,51 @@ where
     }
 
     /// Init polynomial with specified coefficients
-    pub fn from_vec(coefficients: Vec<T>, n: usize) -> Self {
-        // For now we make it an error to input more coefficients than we can handle
-        // In the future maybe we want to handle this more gracefully
-        assert!(coefficients.len() <= n);
-
-        let mut degree = (n.min(coefficients.len()) - 1).try_into().unwrap();
-
+    /// If more tham n coefficients are supplied the input is simply truncated
+    pub fn from_vec(mut coefficients: Vec<T>, n: usize) -> Self {
         let t: T = Default::default();
+        coefficients.resize(n, t.zero());
+
+        let mut degree = n;
+
+        // Reduce degree if appropriate
+        while degree > 0 && coefficients[degree].eq(&t.zero()) {
+            degree -= 1;
+        }
+
         // Check for zero polynomial
         if degree == 0 && coefficients[0].eq(&t.zero()) {
-            degree = -1;
+            return Polynomial {
+                coefficients: vec![t.zero()],
+                degree: None,
+                n,
+            };
         }
 
         Polynomial {
             coefficients,
-            degree,
+            degree: Some(degree),
             n,
         }
     }
 
     /// Return polynomial degree
-    pub fn degree(&self) -> i32 {
+    pub fn degree(&self) -> Option<usize> {
         self.degree
     }
 
     /// Multiplication by a scalar
     pub fn mulf(&self, other: &T) -> Self {
+        // If the polynomial or the scalar is already zero, do nothing
+        if self.is_zero() || other.is_zero() {
+            return self.zero();
+        }
+        // Unwraps safely since the case None has been tested above
+        let degree = self.degree().unwrap();
+
         let mut v = vec![];
 
-        for i in 0..self.degree().try_into().unwrap() {
+        for i in 0..degree {
             v[i] = self.coefficients[i].mul(other)
         }
         Self::from_vec(v, self.n)

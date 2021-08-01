@@ -4,7 +4,6 @@
 
 use crate::polyvec::structures::{FiniteField, FiniteRing, RingModule};
 use crate::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
-use core::convert::TryInto;
 
 /// 256-roots of unity
 const ZETAS_256: [usize; 256] = [
@@ -36,7 +35,12 @@ pub fn bcm(a: &Poly3329, b: &Poly3329) -> Poly3329 {
     assert_eq!(a.degree(), b.degree());
     assert_eq!(a.dimension(), b.dimension());
 
-    let d: usize = a.degree().try_into().unwrap();
+    // BCM with the zero polynomial is the zero polynomial
+    if a.is_zero() || b.is_zero() {
+        return a.zero();
+    }
+    // Unwraps safely since the case None has been tested above
+    let d = a.degree().unwrap();
 
     let mut p = Poly3329::init(a.dimension());
 
@@ -117,12 +121,12 @@ pub fn rev_ntt_vec(p_hat: &PolyVec3329) -> PolyVec3329 {
 pub fn base_ntt(p: &Poly3329) -> Poly3329 {
     let mut a = Poly3329::init(p.dimension());
 
-    if p.degree() < 0 {
-        // Zero polynomial's NTT is zero
-        return p.clone();
+    // Zero polynomial's NTT is zero
+    if p.is_zero() {
+        return p.zero();
     }
-
-    let d: usize = p.degree().try_into().unwrap();
+    // Unwraps safely since the case None has been tested above
+    let d = p.degree().unwrap();
 
     // We assume d is even since spec requires operating mod X^2-zeta
     for i in 0..=d / 2 {
@@ -152,12 +156,13 @@ pub fn base_ntt(p: &Poly3329) -> Poly3329 {
 pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
     let mut a = Poly3329::init(p_hat.dimension());
 
-    if p_hat.degree() < 0 {
-        // Zero polynomial's NTT is zero
-        return p_hat.clone();
+    // Zero polynomial's NTT is zero
+    if p_hat.is_zero() {
+        return p_hat.zero();
     }
+    // Unwraps safely since the case None has been tested above
+    let d = p_hat.degree().unwrap();
 
-    let d: usize = p_hat.degree().try_into().unwrap();
     let coeff = F3329::from_int((d / 2) + 1);
 
     for i in 0..=d / 2 {
@@ -177,6 +182,8 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
             p0 = p0.add(&c0);
             p1 = p1.add(&c1);
         }
+
+        // Unwraps safely since coeff is d/2 + 1
         a[2 * i] = p0.mul(&z).div(&coeff).unwrap();
         a[2 * i + 1] = p1.mul(&z).div(&coeff).unwrap();
     }

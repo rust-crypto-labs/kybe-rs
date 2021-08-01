@@ -303,13 +303,3 @@ impl PrimeField3329 {
         self.val
     }
 }
-
-#[test]
-fn inv_test() {
-    // for i in (1..3329) {
-    //     print!("{:?},", PrimeField3329::from_int(i).inv().unwrap())
-    // }
-    let f = PrimeField3329::from_int(2);
-
-    assert_eq!(f.inv().unwrap(), PrimeField3329::from_int(1665))
-}
