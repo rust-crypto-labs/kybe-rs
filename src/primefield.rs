@@ -1,6 +1,7 @@
 use crate::polyvec::structures::FiniteField;
 
-use std::fmt::Debug;
+use core::fmt::Debug;
+
 const INV_3329: [usize; 3329] = [
     0, 1, 1665, 1110, 2497, 666, 555, 2378, 2913, 370, 333, 908, 1942, 3073, 1189, 222, 3121, 1175,
     185, 2453, 1831, 3012, 454, 579, 971, 799, 3201, 1233, 2259, 574, 111, 1933, 3225, 2522, 2252,
@@ -215,7 +216,7 @@ pub struct PrimeField3329 {
 }
 
 impl Debug for PrimeField3329 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{:?}", self.val)
     }
 }
@@ -260,56 +261,15 @@ impl FiniteField for PrimeField3329 {
         }
     }
 
-    fn inv(&self) -> Result<Self, String> {
+    fn inv<'a>(&self) -> Result<Self, &'a str> {
         if self.is_zero() {
-            return Err("DIV0".to_string());
+            return Err("DIV0");
         }
 
-        // let (a, p) = (self.val, Self::order());
-
-        // let mut r = (a, p);
-        // let mut s = (1, 0);
-        // let mut t = (0, 1);
-
-        // while r.0 != r.1 {
-        //     match r.0 % 2 {
-        //         1 => {
-        //             if r.0 > r.1 {
-        //                 r.0 -= r.1;
-        //                 t.0 = (t.0 + (p - t.1)) % p;
-        //                 s.0 = (s.0 + (p - s.1)) % p;
-        //             } else {
-        //                 r.1 -= r.0;
-        //                 t.1 = (t.1 + (p - t.0)) % p;
-        //                 s.1 = (s.1 + (p - s.0)) % p;
-        //             }
-        //         }
-        //         0 => {
-        //             r.0 /= 2;
-        //             if s.0 % 2 == 0 && t.0 % 2 == 0 {
-        //                 s.0 /= 2;
-        //                 t.0 /= 2;
-        //             } else {
-        //                 s.0 = (s.0 + p) / 2;
-        //                 t.0 = (t.0 + (p - a)) % p / 2;
-        //             }
-        //         }
-        //         _ => {}
-        //     }
-        // }
-
         Ok(Self::from_int(INV_3329[self.val]))
-
-        //let mut val = self.one();
-
-        //for _i in 1..(Self::order() - 1) {
-        //    val = val.mul(&self)
-        //}
-
-        //Ok(val)
     }
 
-    fn div(&self, other: &Self) -> Result<Self, String> {
+    fn div<'a>(&self, other: &Self) -> Result<Self, &'a str> {
         Ok(self.mul(&other.inv()?))
     }
 }

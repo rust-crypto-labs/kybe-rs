@@ -2,8 +2,6 @@
 //!
 //! Various utils functions defined for the KEM anf PKE algorithms
 
-use std::convert::TryInto;
-
 use crate::{hash, polyvec::structures::FiniteField, ByteArray, Poly3329, F3329};
 
 /// Receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
@@ -17,7 +15,7 @@ pub fn parse(bs: &ByteArray, n: usize, q: usize) -> Poly3329 {
     while j < n {
         let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
         if d < 19 * q {
-            p[j] = F3329::from_int(d.try_into().unwrap());
+            p[j] = F3329::from_int(d);
             j += 1;
         }
         i += 2;

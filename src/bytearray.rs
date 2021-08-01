@@ -2,6 +2,7 @@
 //!
 //! ByteArray used for exchange and encoding/decoding
 
+use alloc::vec::Vec;
 use rand::prelude::*;
 /// A struct representing an array of bytes
 #[derive(Debug, PartialEq, Eq, Clone)]

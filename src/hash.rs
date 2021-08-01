@@ -6,6 +6,8 @@ use crate::sha3::digest::ExtendableOutput;
 use crate::sha3::digest::XofReader;
 use crate::sha3::Digest;
 
+use alloc::vec::Vec;
+
 use sha3::{Sha3_256, Sha3_512, Shake128, Shake256};
 
 /// shake-128 wrapper

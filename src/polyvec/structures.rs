@@ -71,10 +71,10 @@ pub trait FiniteField: Sized + Eq {
     fn dimension(&self) -> usize;
 
     /// Returns the multiplicative inverse of the element
-    fn inv(&self) -> Result<Self, String>;
+    fn inv<'a>(&self) -> Result<Self, &'a str>;
 
     /// Defines the divison of two elements
-    fn div(&self, other: &Self) -> Result<Self, String>;
+    fn div<'a>(&self, other: &Self) -> Result<Self, &'a str>;
 }
 
 /// The `Vector` trait describes the general properties of an element in a vector space.

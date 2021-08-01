@@ -4,7 +4,7 @@
 
 use crate::polyvec::structures::{FiniteField, FiniteRing, RingModule};
 use crate::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
-use std::convert::TryInto;
+use core::convert::TryInto;
 
 /// 256-roots of unity
 const ZETAS_256: [usize; 256] = [

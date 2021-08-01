@@ -25,6 +25,10 @@
 //! assert_eq!(k, k_recovered);
 //! ```
 
+#![no_std]
+
+#[macro_use]
+extern crate alloc;
 extern crate sha3;
 
 mod bytearray;

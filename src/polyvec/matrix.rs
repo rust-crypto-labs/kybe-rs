@@ -5,7 +5,8 @@
 use crate::polyvec::polyvec::PolyVec;
 use crate::polyvec::structures::{FiniteRing, RingModule};
 
-use std::fmt::{self, Debug};
+use alloc::vec::Vec;
+use core::fmt::{self, Debug};
 
 /// A `Matrix` is a collection of `Vector`s
 pub struct Matrix<K>

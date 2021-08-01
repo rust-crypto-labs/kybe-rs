@@ -3,6 +3,7 @@
 //! Polynomial vector definition
 
 use crate::polyvec::structures::{FiniteRing, RingModule};
+use alloc::vec::Vec;
 
 /// Polyvec
 #[derive(Clone)]

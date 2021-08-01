@@ -3,7 +3,8 @@
 //! Polynomial structure
 
 use crate::polyvec::structures::{FiniteField, FiniteRing};
-use std::{
+use alloc::vec::Vec;
+use core::{
     convert::TryInto,
     ops::{Index, IndexMut},
 };
