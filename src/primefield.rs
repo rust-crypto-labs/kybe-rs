@@ -265,48 +265,7 @@ impl FiniteField for PrimeField3329 {
             return Err("DIV0".to_string());
         }
 
-        // let (a, p) = (self.val, Self::order());
-
-        // let mut r = (a, p);
-        // let mut s = (1, 0);
-        // let mut t = (0, 1);
-
-        // while r.0 != r.1 {
-        //     match r.0 % 2 {
-        //         1 => {
-        //             if r.0 > r.1 {
-        //                 r.0 -= r.1;
-        //                 t.0 = (t.0 + (p - t.1)) % p;
-        //                 s.0 = (s.0 + (p - s.1)) % p;
-        //             } else {
-        //                 r.1 -= r.0;
-        //                 t.1 = (t.1 + (p - t.0)) % p;
-        //                 s.1 = (s.1 + (p - s.0)) % p;
-        //             }
-        //         }
-        //         0 => {
-        //             r.0 /= 2;
-        //             if s.0 % 2 == 0 && t.0 % 2 == 0 {
-        //                 s.0 /= 2;
-        //                 t.0 /= 2;
-        //             } else {
-        //                 s.0 = (s.0 + p) / 2;
-        //                 t.0 = (t.0 + (p - a)) % p / 2;
-        //             }
-        //         }
-        //         _ => {}
-        //     }
-        // }
-
         Ok(Self::from_int(INV_3329[self.val]))
-
-        //let mut val = self.one();
-
-        //for _i in 1..(Self::order() - 1) {
-        //    val = val.mul(&self)
-        //}
-
-        //Ok(val)
     }
 
     fn div(&self, other: &Self) -> Result<Self, String> {
@@ -342,14 +301,4 @@ impl PrimeField3329 {
     pub const fn to_int(&self) -> usize {
         self.val
     }
-}
-
-#[test]
-fn inv_test() {
-    // for i in (1..3329) {
-    //     print!("{:?},", PrimeField3329::from_int(i).inv().unwrap())
-    // }
-    let f = PrimeField3329::from_int(2);
-
-    assert_eq!(f.inv().unwrap(), PrimeField3329::from_int(1665))
 }
