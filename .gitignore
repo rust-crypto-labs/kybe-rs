@@ -10,6 +10,5 @@ Cargo.lock
 **/*.rs.bk
 
 # Remove bench results
-**/*.svg
 **/perf.data
 **/perf.data.old
