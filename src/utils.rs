@@ -4,7 +4,7 @@
 
 use std::convert::TryInto;
 
-use crate::{hash, ByteArray, Poly3329, F3329};
+use crate::{hash, polyvec::structures::FiniteField, ByteArray, Poly3329, F3329};
 
 /// Receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
 /// Algorithm 1 p. 7
@@ -43,7 +43,8 @@ pub fn cbd(bs: ByteArray, eta: usize) -> Poly3329 {
                 b += 1;
             }
         }
-        p[i] = F3329::from_int(a - b);
+        let (a_hat, b_hat) = (F3329::from_int(a), F3329::from_int(b));
+        p[i] = a_hat.sub(&b_hat);
     }
 
     p

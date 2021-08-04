@@ -9,8 +9,8 @@
 //! # Examples
 //!
 //! ```rust
-//! use kybe_rs::{self, params};
-//! let params = params::kyber512();
+//! use kybe_rs::{self, KyberParams};
+//! let params = KyberParams::kyber512();
 //!
 //! // Alice runs keygen, publishes pk. Value sk is secret
 //! let (sk, pk) = kybe_rs::kyber_ccakem_key_gen(params);
@@ -20,7 +20,7 @@
 //!
 //! // Bob sends c to Alice
 //! // Alice uses s, c, sk3 and pk3 to recover k
-//! let k_recovered = kybe_rs::kyber_ccakem_dec(params, c, &sk);
+//! let k_recovered = kybe_rs::kyber_ccakem_dec(params, &c, &sk);
 //!
 //! assert_eq!(k, k_recovered);
 //! ```

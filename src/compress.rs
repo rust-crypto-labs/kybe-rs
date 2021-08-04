@@ -5,20 +5,20 @@
 use crate::{Poly3329, PolyVec3329, F3329};
 
 /// Compress function on coefficients, p. 6
-pub fn compress_integer(x: i64, d: usize, q: usize) -> i64 {
+pub fn compress_integer(x: usize, d: usize, q: usize) -> usize {
     let m = 1 << d;
     let f = (m as f64) / (q as f64);
     let f = f * (x as f64);
 
-    (f.round() as i64) % m
+    (f.round() as usize) % m
 }
 
 /// Decompress function on coefficients, p. 6
-pub fn decompress_integer(x: i64, d: usize, q: usize) -> i64 {
+pub fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
     let m = 1 << d;
     let f = (q as f64 * x as f64) / (m as f64);
 
-    f.round() as i64
+    f.round() as usize
 }
 
 /// Compress function on R_q

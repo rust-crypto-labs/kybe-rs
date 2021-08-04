@@ -14,3 +14,16 @@ repository = "https://github.com/rust-crypto-labs/kybe-rs"
 sha3 = "0.8.0"
 digest = "0.9.0"
 rand = "0.7.3"
+
+[dev-dependencies]
+criterion = "0.3"
+flamegraph = "0.4"
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+
+[[bench]]
+name = "kyber-bench"
+harness = false
