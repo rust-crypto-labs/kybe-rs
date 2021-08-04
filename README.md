@@ -21,6 +21,21 @@ The 2nd round updated specification (30 march 2019) is used as a basis for imple
 * The implementation is not guaranteed to be constant time
 * The implementation is not `no_std` compatible (for non-essential reasons)
 
+### Dev options
+
+#### Benchmark
+Benchmarks with criterion:
+
+```cargo bench```
+
+#### Profiling
+
+Profiling with flamegraph:
+
+```cargo flamegraph --example file [-o name.svg]```
+
+For any `file.rs` in the `examples` folder.
+
 ### References and documentation
 
 * https://pq-crystals.org/kyber/
