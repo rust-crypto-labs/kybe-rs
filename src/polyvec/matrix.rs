@@ -59,14 +59,14 @@ where
     /// Set a coefficient
     pub fn set(&mut self, row: usize, column: usize, value: K) {
         assert!((column < X) && (row < Y));
-        self.coefficients[row * Y + column] = value;
+        self.coefficients[row * X + column] = value;
     }
 
     /// Get a coefficient
     pub fn get(&self, row: usize, column: usize) -> K {
         assert!((column < X) && (row < Y));
 
-        self.coefficients[row * Y + column].clone()
+        self.coefficients[row * X + column].clone()
     }
 
     /// Perform a matrix vector multiplication

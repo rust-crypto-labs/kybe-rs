@@ -23,18 +23,18 @@ pub fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
 
 /// Compress function on R_q
 pub fn compress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Poly3329<N> {
-    let mut coeffs = vec![];
-    for xi in x.coefficients.iter() {
-        coeffs.push(F3329::from_int(compress_integer(xi.to_int(), d, q)));
+    let mut coeffs = [Default::default(); N];
+    for i in 0..N {
+        coeffs[i] = F3329::from_int(compress_integer(x[i].to_int(), d, q));
     }
     Poly3329::from_vec(coeffs)
 }
 
 /// Deompress function on R_q
 pub fn decompress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Poly3329<N> {
-    let mut coeffs = vec![];
-    for xi in x.coefficients.iter() {
-        coeffs.push(F3329::from_int(decompress_integer(xi.to_int(), d, q)));
+    let mut coeffs = [Default::default(); N];
+    for i in 0..N {
+        coeffs[i] = F3329::from_int(decompress_integer(x[i].to_int(), d, q));
     }
     Poly3329::from_vec(coeffs)
 }

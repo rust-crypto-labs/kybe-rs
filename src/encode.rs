@@ -10,9 +10,9 @@ use crate::{
 /// Deserialize ByteArray into Polynomial
 /// Algorithm 3 p. 8
 pub fn decode_to_poly<const N: usize>(bs: ByteArray, ell: usize) -> Poly3329<N> {
-    let mut f = vec![F3329::from_int(0); 256];
+    let mut f = [F3329::zero(); N];
 
-    for i in 0..256 {
+    for i in 0..N {
         for j in 0..ell {
             if bs.get_bit(i * ell + j) {
                 f[i] = f[i].add(&F3329::from_int(1 << j));
