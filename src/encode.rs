@@ -19,7 +19,7 @@ pub fn decode_to_poly<const N: usize>(bs: ByteArray, ell: usize) -> Poly3329<N> 
             }
         }
     }
-    Poly3329::from_vec(f, 256)
+    Poly3329::from_vec(f)
 }
 
 /// Serialize Poly into ByteArray

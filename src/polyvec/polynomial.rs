@@ -162,7 +162,7 @@ where
 {
     /// Init polynomial with a default value
     pub fn init() -> Self {
-        Self::from_vec(vec![Default::default(); N], N)
+        Self::from_vec(vec![Default::default(); N])
     }
 
     /// Return dimension of the Rq module
@@ -171,12 +171,13 @@ where
     }
 
     /// Init polynomial with specified coefficients
-    pub fn from_vec(coefficients: Vec<T>, n: usize) -> Self {
+    pub fn from_vec(mut coefficients: Vec<T>) -> Self {
         // For now we make it an error to input more coefficients than we can handle
         // In the future maybe we want to handle this more gracefully
-        assert!(coefficients.len() <= n);
+        assert!(coefficients.len() <= N);
+        coefficients.truncate(N);
 
-        let degree = (n.min(coefficients.len()) - 1).try_into().unwrap();
+        let degree = (N.min(coefficients.len()) - 1).try_into().unwrap();
 
         // Check for zero polynomial
         if degree == 0 && coefficients[0].eq(&T::zero()) {
@@ -208,7 +209,7 @@ where
         for i in 0..degree {
             v[i] = self.coefficients[i].mul(other)
         }
-        Self::from_vec(v, N)
+        Self::from_vec(v)
     }
 }
 

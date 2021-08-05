@@ -27,7 +27,7 @@ pub fn compress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Poly
     for xi in x.coefficients.iter() {
         coeffs.push(F3329::from_int(compress_integer(xi.to_int(), d, q)));
     }
-    Poly3329::from_vec(coeffs, N)
+    Poly3329::from_vec(coeffs)
 }
 
 /// Deompress function on R_q
@@ -36,7 +36,7 @@ pub fn decompress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Po
     for xi in x.coefficients.iter() {
         coeffs.push(F3329::from_int(decompress_integer(xi.to_int(), d, q)));
     }
-    Poly3329::from_vec(coeffs, N)
+    Poly3329::from_vec(coeffs)
 }
 
 /// Compress function on R_q^k
