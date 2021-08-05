@@ -30,14 +30,14 @@ where
     }
 
     fn zero() -> Self {
-        Polynomial {
+        Self {
             coefficients: vec![T::zero()],
             degree: None,
         }
     }
 
     fn one() -> Self {
-        Polynomial {
+        Self {
             coefficients: vec![T::one()],
             degree: Some(0),
         }
@@ -55,7 +55,7 @@ where
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = c.neg();
         }
-        Polynomial {
+        Self {
             coefficients,
             degree: Some(degree),
         }
@@ -86,7 +86,7 @@ where
             return Self::zero();
         }
 
-        Polynomial {
+        Self {
             coefficients,
             degree: Some(degree),
         }
@@ -180,13 +180,10 @@ where
 
         // Check for zero polynomial
         if degree == 0 && coefficients[0].eq(&T::zero()) {
-            return Polynomial {
-                coefficients: vec![T::zero()],
-                degree: None,
-            };
+            return Self::zero()
         }
 
-        Polynomial {
+        Self {
             coefficients,
             degree: Some(degree),
         }
