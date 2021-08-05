@@ -47,10 +47,13 @@ pub fn encode_poly<const N: usize>(p: Poly3329<N>, ell: usize) -> ByteArray {
 }
 
 /// Deserialize ByteArray into PolyVec
-pub fn decode_to_polyvec<const N: usize,const D: usize>(bs: ByteArray, ell: usize) -> PolyVec3329<N, D> {
+pub fn decode_to_polyvec<const N: usize, const D: usize>(
+    bs: ByteArray,
+    ell: usize,
+) -> PolyVec3329<N, D> {
     let k = bs.data.len() / (32 * ell);
     let mut b = bs;
-    let mut p_vec = PolyVec3329::from_vec(vec![Poly3329::init(256); k]);
+    let mut p_vec = PolyVec3329::from_vec(vec![Poly3329::init(); k]);
 
     for i in 0..k {
         let (a, c) = b.split_at(32 * ell);
@@ -62,11 +65,13 @@ pub fn decode_to_polyvec<const N: usize,const D: usize>(bs: ByteArray, ell: usiz
 }
 
 /// Serialize PolyVec into ByteArray
-pub fn encode_polyvec<const N: usize, const D: usize>(p_vec: PolyVec3329<N,D>, s: usize) -> ByteArray {
+pub fn encode_polyvec<const N: usize, const D: usize>(
+    p_vec: PolyVec3329<N, D>,
+    s: usize,
+) -> ByteArray {
     let mut b = ByteArray::new();
-    let ell = p_vec.dimension();
 
-    for i in 0..ell {
+    for i in 0..D {
         let p = p_vec.get(i);
         b = b.append(&encode_poly(p, s));
     }

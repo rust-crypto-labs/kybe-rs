@@ -8,13 +8,13 @@ use crate::{hash, polyvec::structures::FiniteField, ByteArray, Poly3329, F3329};
 
 /// Receives as input a byte stream B=(b0; b1; b2;...) and computes the NTT-representation a' = a'_0 + a'_0X + ... + a'_n-1X^(n-1) in R_q of a in R_q
 /// Algorithm 1 p. 7
-pub fn parse<const N: usize>(bs: &ByteArray, n: usize, q: usize) -> Poly3329<N> {
+pub fn parse<const N: usize>(bs: &ByteArray, q: usize) -> Poly3329<N> {
     let mut i = 0;
     let mut j = 0;
 
-    let mut p = Poly3329::init(n);
+    let mut p = Poly3329::init();
 
-    while j < n {
+    while j < N {
         let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
         if d < 19 * q {
             p[j] = F3329::from_int(d.try_into().unwrap());
@@ -30,7 +30,7 @@ pub fn parse<const N: usize>(bs: &ByteArray, n: usize, q: usize) -> Poly3329<N> 
 /// Algorithm 2 p. 8
 /// Takes as input an array of 64 eta bytes
 pub fn cbd<const N: usize>(bs: ByteArray, eta: usize) -> Poly3329<N> {
-    let mut p = Poly3329::init(256);
+    let mut p = Poly3329::init();
     for i in 0..256 {
         let mut a = 0;
         let mut b = 0;

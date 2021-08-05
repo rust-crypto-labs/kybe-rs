@@ -221,7 +221,7 @@ impl Debug for PrimeField3329 {
 }
 
 impl FiniteField for PrimeField3329 {
-    fn dimension(&self) -> usize {
+    fn dimension() -> usize {
         1
     }
     fn is_zero(&self) -> bool {

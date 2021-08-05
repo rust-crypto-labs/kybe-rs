@@ -19,9 +19,6 @@ where
 
     /// Degree of the polynomial (the zero polynomial has degree < 0)
     pub degree: Option<usize>,
-
-    /// Dimension of the ring as as a vector space over T
-    pub n: usize,
 }
 
 impl<T, const N: usize> FiniteRing for Polynomial<T, N>
@@ -36,7 +33,6 @@ where
         Polynomial {
             coefficients: vec![T::zero()],
             degree: None,
-            n: N,
         }
     }
 
@@ -44,7 +40,6 @@ where
         Polynomial {
             coefficients: vec![T::one()],
             degree: Some(0),
-            n: N,
         }
     }
 
@@ -63,7 +58,6 @@ where
         Polynomial {
             coefficients,
             degree: Some(degree),
-            n: N,
         }
     }
 
@@ -95,7 +89,6 @@ where
         Polynomial {
             coefficients,
             degree: Some(degree),
-            n: N,
         }
     }
 
@@ -110,23 +103,23 @@ where
         if other.is_zero() {
             return other.clone();
         }
-        let coeffs = vec![T::zero(); self.n];
+        let coeffs = vec![T::zero(); N];
 
         for (i, a) in self.coefficients.iter().enumerate() {
             for (j, b) in other.coefficients.iter().enumerate() {
                 let c = a.mul(&b);
                 let k = i + j;
-                if k < self.n {
+                if k < N {
                     coeffs[k].add(&c);
                 } else {
                     // X^n = -1
-                    coeffs[k % self.n].sub(&c);
+                    coeffs[k % N].sub(&c);
                 }
             }
         }
 
         // Reduce degree if appropriate
-        let mut degree = self.n - 1;
+        let mut degree = N - 1;
         while degree > 0 && coeffs[degree].eq(&T::zero()) {
             degree -= 1;
         }
@@ -139,7 +132,6 @@ where
         Self {
             coefficients: coeffs,
             degree: Some(degree),
-            n: self.n,
         }
     }
 }
@@ -169,13 +161,13 @@ where
     T: FiniteField + Clone + Default,
 {
     /// Init polynomial with a default value
-    pub fn init(n: usize) -> Self {
-        Self::from_vec(vec![Default::default(); n], n)
+    pub fn init() -> Self {
+        Self::from_vec(vec![Default::default(); N], N)
     }
 
     /// Return dimension of the Rq module
-    pub fn dimension(&self) -> usize {
-        self.n
+    pub fn dimension() -> usize {
+        N
     }
 
     /// Init polynomial with specified coefficients
@@ -191,14 +183,12 @@ where
             return Polynomial {
                 coefficients: vec![T::zero()],
                 degree: None,
-                n,
             };
         }
 
         Polynomial {
             coefficients,
             degree: Some(degree),
-            n,
         }
     }
 
@@ -221,7 +211,7 @@ where
         for i in 0..degree {
             v[i] = self.coefficients[i].mul(other)
         }
-        Self::from_vec(v, self.n)
+        Self::from_vec(v, N)
     }
 }
 
@@ -236,7 +226,7 @@ where
     }
 }
 
-impl<T,const N: usize> IndexMut<usize> for Polynomial<T, N>
+impl<T, const N: usize> IndexMut<usize> for Polynomial<T, N>
 where
     T: FiniteField + Default,
 {
@@ -250,6 +240,6 @@ where
     T: FiniteField + Clone + Default,
 {
     fn default() -> Self {
-        Self::init(1)
+        Self::init()
     }
 }

@@ -9,12 +9,9 @@ use crate::polyvec::structures::{FiniteRing, RingModule};
 pub struct PolyVec<T: FiniteRing, const D: usize> {
     /// Vector coefficients
     pub coefficients: Vec<T>,
-
-    /// Size of vector
-    pub dimension: usize,
 }
 
-impl<T, const D: usize> RingModule<T> for PolyVec<T,D>
+impl<T, const D: usize> RingModule<T> for PolyVec<T, D>
 where
     T: FiniteRing + Clone + Default,
 {
@@ -34,60 +31,49 @@ where
         let mut coefficients = vec![T::zero(); D];
         coefficients[position] = T::one();
 
-        Self {
-            coefficients,
-            dimension: D,
-        }
+        Self { coefficients }
     }
 
     fn init() -> Self {
         Self {
             coefficients: vec![T::zero(); D],
-            dimension: D,
         }
     }
 
     fn is_zero(&self) -> bool {
-        if self.dimension == 0 {
-            true
-        } else {
-            self.coefficients.iter().all(|c| c.is_zero())
-        }
+        D == 0 || self.coefficients.iter().all(|c| c.is_zero())
     }
 
     fn neg(&self) -> Self {
         Self::init().sub(self)
     }
 
-    fn dimension(&self) -> usize {
-        self.dimension
+    fn dimension() -> usize {
+        D
     }
 
     fn add(&self, other: &Self) -> Self {
-        assert_eq!(self.dimension(), other.dimension());
-        let mut v = vec![Default::default(); self.dimension()];
+        let mut v = vec![Default::default(); D];
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v[i] = self.coefficients[i].add(&other.coefficients[i]);
         }
         Self::from_vec(v)
     }
 
     fn sub(&self, other: &Self) -> Self {
-        assert_eq!(self.dimension(), other.dimension());
         let mut v = vec![];
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v[i] = self.coefficients[i].sub(&other.coefficients[i])
         }
         Self::from_vec(v)
     }
 
     fn dot(&self, other: &Self) -> T {
-        assert_eq!(self.dimension(), other.dimension());
         let mut v = T::zero();
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v = v.add(&self.coefficients[i].mul(&other.coefficients[i]))
         }
         v
@@ -96,7 +82,7 @@ where
     fn mulf(&self, other: &T) -> Self {
         let mut v = vec![];
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v[i] = self.coefficients[i].mul(other)
         }
         Self::from_vec(v)
@@ -110,7 +96,6 @@ where
     fn default() -> Self {
         Self {
             coefficients: vec![],
-            dimension: 0,
         }
     }
 }
@@ -120,10 +105,6 @@ where
     T: FiniteRing + Clone + Default,
 {
     pub fn from_vec(coefficients: Vec<T>) -> Self {
-        let dimension = coefficients.len();
-        Self {
-            coefficients,
-            dimension,
-        }
+        Self { coefficients }
     }
 }

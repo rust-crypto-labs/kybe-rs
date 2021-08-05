@@ -68,7 +68,7 @@ pub trait FiniteField: Sized + Eq {
     fn mul(&self, other: &Self) -> Self;
 
     /// Returns the dimension of the finite field
-    fn dimension(&self) -> usize;
+    fn dimension() -> usize;
 
     /// Returns the multiplicative inverse of the element
     fn inv(&self) -> Result<Self, String>;
@@ -95,7 +95,7 @@ pub trait VectorSpace<T: FiniteField> {
     fn sub(&self, other: &Self) -> Self;
 
     /// Returns the vector's dimension
-    fn dimension(&self) -> usize;
+    fn dimension() -> usize;
 
     /// Initialise vector type
     fn init() -> Self;
@@ -134,7 +134,7 @@ pub trait RingModule<T: FiniteRing> {
     fn sub(&self, other: &Self) -> Self;
 
     /// Returns the vector's dimension
-    fn dimension(&self) -> usize;
+    fn dimension() -> usize;
 
     /// Initialise vector type
     fn init() -> Self;
