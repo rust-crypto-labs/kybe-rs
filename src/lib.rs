@@ -72,7 +72,7 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let d = ByteArray::random(32);
     let (rho, sigma) = g(&d);
 
-    let mut a = PolyMatrix3329::init_matrix(k, k);
+    let mut a = PolyMatrix3329::init();
 
     for i in 0..k {
         for j in 0..k {
@@ -111,7 +111,7 @@ pub fn kyber_cpapke_enc(
 
     let (t, rho) = pk.split_at(offset);
     let t_hat = decode_to_polyvec(t, 12);
-    let mut a_t = PolyMatrix3329::init_matrix(params.k, params.k);
+    let mut a_t = PolyMatrix3329::init();
 
     for i in 0..params.k {
         for j in 0..params.k {
