@@ -8,7 +8,7 @@ use crate::polyvec::structures::{FiniteRing, RingModule};
 use std::fmt::{self, Debug};
 
 /// A `Matrix` is a collection of `Vector`s
-pub struct Matrix<K>
+pub struct Matrix<K, const X: usize, const Y: usize>
 where
     K: FiniteRing + Clone + Default,
 {
@@ -19,7 +19,7 @@ where
     dimensions: (usize, usize),
 }
 
-impl<K> Matrix<K>
+impl<K, const X: usize, const Y: usize> Matrix<K, X, Y>
 where
     K: FiniteRing + Clone + Default,
 {
@@ -39,9 +39,9 @@ where
     }
 
     /// Return a specific row
-    pub fn row(&self, index: usize) -> PolyVec<K> {
+    pub fn row(&self, index: usize) -> PolyVec<K, X> {
         let (cols, rows) = self.dimensions();
-        let mut t = PolyVec::<K>::init(cols);
+        let mut t = PolyVec::<K,X>::init(cols);
 
         for i in 0..cols {
             t.set(i, self.coefficients[index * rows + i].clone());
@@ -51,9 +51,9 @@ where
     }
 
     /// Return a specific column
-    pub fn column(&self, index: usize) -> PolyVec<K> {
+    pub fn column(&self, index: usize) -> PolyVec<K,Y> {
         let (cols, rows) = self.dimensions();
-        let mut t = PolyVec::<K>::init(rows);
+        let mut t = PolyVec::<K,Y>::init(rows);
 
         for i in 0..rows {
             t.set(i, self.coefficients[index * i + cols].clone());
@@ -79,11 +79,11 @@ where
     }
 
     /// Perform a matrix vector multiplication
-    pub fn vec_mul(&self, v: &PolyVec<K>) -> PolyVec<K> {
+    pub fn vec_mul(&self, v: &PolyVec<K,X>) -> PolyVec<K,Y> {
         let (cols, rows) = self.dimensions();
         assert!(v.dimension() == rows);
 
-        let mut t = PolyVec::<K>::init(cols);
+        let mut t = PolyVec::<K,Y>::init(cols);
 
         for j in 0..cols {
             t.set(j, v.dot(&self.row(j)));
@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<K> fmt::Debug for Matrix<K>
+impl<K, const X: usize, const Y: usize> fmt::Debug for Matrix<K,X,Y>
 where
     K: FiniteRing + Clone + Default + Debug,
 {

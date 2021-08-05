@@ -6,7 +6,7 @@ use crate::polyvec::structures::{FiniteRing, RingModule};
 
 /// Polyvec
 #[derive(Clone)]
-pub struct PolyVec<T: FiniteRing> {
+pub struct PolyVec<T: FiniteRing, const D: usize> {
     /// Vector coefficients
     pub coefficients: Vec<T>,
 
@@ -14,7 +14,7 @@ pub struct PolyVec<T: FiniteRing> {
     pub dimension: usize,
 }
 
-impl<T> RingModule<T> for PolyVec<T>
+impl<T, const D: usize> RingModule<T> for PolyVec<T,D>
 where
     T: FiniteRing + Clone + Default,
 {
@@ -109,7 +109,7 @@ where
     }
 }
 
-impl<T> Default for PolyVec<T>
+impl<T, const D: usize> Default for PolyVec<T, D>
 where
     T: FiniteRing,
 {
@@ -121,7 +121,7 @@ where
     }
 }
 
-impl<T> PolyVec<T>
+impl<T, const D: usize> PolyVec<T, D>
 where
     T: FiniteRing + Clone + Default,
 {
