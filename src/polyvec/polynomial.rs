@@ -10,7 +10,7 @@ use std::{
 
 /// Represents a polynomial in the ring T[X]/(X^n + 1)
 #[derive(Clone)]
-pub struct Polynomial<T>
+pub struct Polynomial<T, const N: usize>
 where
     T: FiniteField + Default,
 {
@@ -24,7 +24,7 @@ where
     pub n: usize,
 }
 
-impl<T> FiniteRing for Polynomial<T>
+impl<T, const N: usize> FiniteRing for Polynomial<T, N>
 where
     T: FiniteField + Clone + Default,
 {
@@ -150,7 +150,7 @@ where
     }
 }
 
-impl<T> PartialEq for Polynomial<T>
+impl<T, const N: usize> PartialEq for Polynomial<T, N>
 where
     T: FiniteField + Default,
 {
@@ -168,9 +168,9 @@ where
     }
 }
 
-impl<T> Eq for Polynomial<T> where T: FiniteField + Default {}
+impl<T, const N: usize> Eq for Polynomial<T, N> where T: FiniteField + Default {}
 
-impl<T> Polynomial<T>
+impl<T, const N: usize> Polynomial<T, N>
 where
     T: FiniteField + Clone + Default,
 {
@@ -232,7 +232,7 @@ where
     }
 }
 
-impl<T> Index<usize> for Polynomial<T>
+impl<T, const N: usize> Index<usize> for Polynomial<T, N>
 where
     T: FiniteField + Default,
 {
@@ -243,7 +243,7 @@ where
     }
 }
 
-impl<T> IndexMut<usize> for Polynomial<T>
+impl<T,const N: usize> IndexMut<usize> for Polynomial<T, N>
 where
     T: FiniteField + Default,
 {
@@ -252,7 +252,7 @@ where
     }
 }
 
-impl<T> Default for Polynomial<T>
+impl<T, const N: usize> Default for Polynomial<T, N>
 where
     T: FiniteField + Clone + Default,
 {

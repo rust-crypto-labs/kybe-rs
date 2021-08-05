@@ -31,9 +31,8 @@ pub fn byte_rev(i: usize) -> usize {
 }
 
 /// Basecase multiplication between polynomials (p 7)
-pub fn bcm(a: &Poly3329, b: &Poly3329) -> Poly3329 {
+pub fn bcm<const N: usize>(a: &Poly3329<N>, b: &Poly3329<N>) -> Poly3329<N> {
     assert_eq!(a.degree(), b.degree());
-    assert_eq!(a.dimension(), b.dimension());
 
     // BCM with the zero polynomial is the zero polynomial
     if a.is_zero() || b.is_zero() {
@@ -59,7 +58,7 @@ pub fn bcm(a: &Poly3329, b: &Poly3329) -> Poly3329 {
 }
 
 /// Base case multiplivation for vectors
-pub fn bcm_vec(a: &PolyVec3329, b: &PolyVec3329) -> Poly3329 {
+pub fn bcm_vec<const N: usize>(a: &PolyVec3329<N>, b: &PolyVec3329<N>) -> Poly3329<N> {
     let l = a.dimension();
     assert_eq!(l, b.dimension());
 
@@ -71,7 +70,7 @@ pub fn bcm_vec(a: &PolyVec3329, b: &PolyVec3329) -> Poly3329 {
 }
 
 /// Matrix basecase multiplication, cf p. 7
-pub fn bcm_matrix_vec(a: &PolyMatrix3329, b: &PolyVec3329) -> PolyVec3329 {
+pub fn bcm_matrix_vec<const N: usize>(a: &PolyMatrix3329<N>, b: &PolyVec3329<N>) -> PolyVec3329<N> {
     let (x, y) = a.dimensions();
     assert_eq!(x, b.dimension());
 
@@ -85,22 +84,22 @@ pub fn bcm_matrix_vec(a: &PolyMatrix3329, b: &PolyVec3329) -> PolyVec3329 {
 }
 
 /// Computes a.b as NTT^-1(a_hat o b_hat)
-pub fn ntt_product(a_hat: &Poly3329, b_hat: &Poly3329) -> Poly3329 {
+pub fn ntt_product<const N: usize>(a_hat: &Poly3329<N>, b_hat: &Poly3329<N>) -> Poly3329<N> {
     rev_ntt(&bcm(a_hat, b_hat))
 }
 
 /// Computes a^T.b as NTT^-1(a_hat^T o b_hat)
-pub fn ntt_product_vec(a_hat: &PolyVec3329, b_hat: &PolyVec3329) -> Poly3329 {
+pub fn ntt_product_vec<const N: usize>(a_hat: &PolyVec3329<N>, b_hat: &PolyVec3329<N>) -> Poly3329<N> {
     rev_ntt(&bcm_vec(a_hat, b_hat))
 }
 
 /// Computes a.b as NTT^-1(a_hat o b_hat)
-pub fn ntt_product_matvec(a_hat: &PolyMatrix3329, b_hat: &PolyVec3329) -> PolyVec3329 {
+pub fn ntt_product_matvec<const N: usize>(a_hat: &PolyMatrix3329<N>, b_hat: &PolyVec3329<N>) -> PolyVec3329<N> {
     rev_ntt_vec(&bcm_matrix_vec(a_hat, b_hat))
 }
 
 /// Number theoretic Transform on vectors
-pub fn ntt_vec(p: &PolyVec3329) -> PolyVec3329 {
+pub fn ntt_vec<const N: usize>(p: &PolyVec3329<N>) -> PolyVec3329<N> {
     let mut c = vec![];
     for p_i in p.coefficients.iter() {
         c.push(base_ntt(p_i));
@@ -109,7 +108,7 @@ pub fn ntt_vec(p: &PolyVec3329) -> PolyVec3329 {
 }
 
 /// Reverse NTT on vectors
-pub fn rev_ntt_vec(p_hat: &PolyVec3329) -> PolyVec3329 {
+pub fn rev_ntt_vec<const N: usize>(p_hat: &PolyVec3329<N>) -> PolyVec3329<N> {
     let mut c = vec![];
     for p_i in p_hat.coefficients.iter() {
         c.push(rev_ntt(p_i));
@@ -118,7 +117,7 @@ pub fn rev_ntt_vec(p_hat: &PolyVec3329) -> PolyVec3329 {
 }
 
 /// Number theoretic Transform
-pub fn base_ntt(p: &Poly3329) -> Poly3329 {
+pub fn base_ntt<const N: usize>(p: &Poly3329<N>) -> Poly3329<N> {
     let mut a = Poly3329::init(p.dimension());
 
     // Zero polynomial's NTT is zero
@@ -154,7 +153,7 @@ pub fn base_ntt(p: &Poly3329) -> Poly3329 {
 }
 
 /// Reverse NTT
-pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
+pub fn rev_ntt<const N: usize>(p_hat: &Poly3329<N>) -> Poly3329<N> {
     let mut a = Poly3329::init(p_hat.dimension());
 
     // Zero polynomial's NTT is zero
@@ -194,7 +193,7 @@ pub fn rev_ntt(p_hat: &Poly3329) -> Poly3329 {
 
 #[test]
 fn rev_then_ntt() {
-    let mut u_bold = Poly3329::from_vec(vec![Default::default(); 256], 256);
+    let mut u_bold = Poly3329::<256>::from_vec(vec![Default::default(); 256], 256);
     for i in 0..256 {
         u_bold[i] = F3329::from_int(i);
     }
@@ -205,7 +204,7 @@ fn rev_then_ntt() {
 
 #[test]
 fn ntt_then_rev() {
-    let mut u = Poly3329::from_vec(vec![Default::default(); 256], 256);
+    let mut u = Poly3329::<256>::from_vec(vec![Default::default(); 256], 256);
     for i in 0..256 {
         u[i] = F3329::from_int(i);
     }
