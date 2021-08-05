@@ -4,8 +4,7 @@
 
 use crate::polyvec::structures::{FiniteField, FiniteRing};
 use std::{
-    convert::TryInto,
-    ops::{Index, IndexMut},
+    ops::Index
 };
 
 /// Represents a polynomial in the ring T[X]/(X^n + 1)
@@ -177,7 +176,7 @@ where
         assert!(coefficients.len() <= N);
         coefficients.truncate(N);
 
-        let degree = (N.min(coefficients.len()) - 1).try_into().unwrap();
+        let degree = N.min(coefficients.len()) - 1;
 
         // Check for zero polynomial
         if degree == 0 && coefficients[0].eq(&T::zero()) {
@@ -211,6 +210,30 @@ where
         }
         Self::from_vec(v)
     }
+
+    /// Set a coefficient of the polynomial, recalculates the degree
+    /// Ignores values beyond the dimension of the polynomial
+    pub fn set_coeff(&mut self, index: usize, val: T) {
+        if index < N && !val.is_zero() {
+
+            let degree = match self.degree() {
+                Some(d) if d < index => index,
+                None => index,
+                Some(d) => d,
+            };
+
+            let mut coefficients = self.coefficients.clone();
+
+
+            // Safe unwrap since degree becomes index if it was None
+            coefficients.resize(degree + 1, T::zero());
+            coefficients[index] = val;
+
+            self.degree = Some(degree);
+            self.coefficients = coefficients;
+        }
+    }
+
 }
 
 impl<T, const N: usize> Index<usize> for Polynomial<T, N>
@@ -221,15 +244,6 @@ where
 
     fn index(&self, index: usize) -> &T {
         &self.coefficients[index]
-    }
-}
-
-impl<T, const N: usize> IndexMut<usize> for Polynomial<T, N>
-where
-    T: FiniteField + Default,
-{
-    fn index_mut(&mut self, index: usize) -> &mut T {
-        &mut self.coefficients[index]
     }
 }
 

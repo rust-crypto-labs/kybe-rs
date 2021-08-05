@@ -48,11 +48,11 @@ pub fn bcm<const N: usize>(a: &Poly3329<N>, b: &Poly3329<N>) -> Poly3329<N> {
 
         let p01 = a[2 * i].mul(&b[2 * i]);
         let p02 = a[2 * i + 1].mul(&b[2 * i + 1]).mul(&zeta);
-        p[2 * i] = p01.add(&p02);
 
         let p11 = a[2 * i].mul(&b[2 * i + 1]);
         let p12 = a[2 * i + 1].mul(&b[2 * i]);
-        p[2 * i + 1] = p11.add(&p12);
+        p.set_coeff(2 * i, p01.add(&p02));
+        p.set_coeff(2 * i + 1, p11.add(&p12));
     }
     p
 }
@@ -151,8 +151,8 @@ pub fn base_ntt<const N: usize>(p: &Poly3329<N>) -> Poly3329<N> {
             p0 = p0.add(&c0);
             p1 = p1.add(&c1);
         }
-        a[2 * i] = p0;
-        a[2 * i + 1] = p1;
+        a.set_coeff(2 * i,p0);
+        a.set_coeff(2 * i + 1,p1);
     }
 
     a
@@ -190,8 +190,8 @@ pub fn rev_ntt<const N: usize>(p_hat: &Poly3329<N>) -> Poly3329<N> {
         }
 
         // Unwraps safely since coeff is d/2 + 1
-        a[2 * i] = p0.mul(&z).div(&coeff).unwrap();
-        a[2 * i + 1] = p1.mul(&z).div(&coeff).unwrap();
+        a.set_coeff(2 * i,p0.mul(&z).div(&coeff).unwrap());
+        a.set_coeff(2 * i + 1,p1.mul(&z).div(&coeff).unwrap());
     }
 
     a
@@ -201,7 +201,7 @@ pub fn rev_ntt<const N: usize>(p_hat: &Poly3329<N>) -> Poly3329<N> {
 fn rev_then_ntt() {
     let mut u_bold = Poly3329::<256>::from_vec(vec![Default::default(); 256]);
     for i in 0..256 {
-        u_bold[i] = F3329::from_int(i);
+        u_bold.set_coeff(i, F3329::from_int(i));
     }
     let u = rev_ntt(&u_bold);
 
@@ -212,7 +212,7 @@ fn rev_then_ntt() {
 fn ntt_then_rev() {
     let mut u = Poly3329::<256>::from_vec(vec![Default::default(); 256]);
     for i in 0..256 {
-        u[i] = F3329::from_int(i);
+        u.set_coeff(i, F3329::from_int(i));
     }
     let u_bold = base_ntt(&u);
 
