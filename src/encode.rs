@@ -53,9 +53,9 @@ pub fn decode_to_polyvec<const N: usize, const D: usize>(
 ) -> PolyVec3329<N, D> {
     let k = bs.data.len() / (32 * ell);
     let mut b = bs;
-    let mut p_vec = PolyVec3329::from_vec(vec![Poly3329::init(); k]);
+    let mut p_vec = PolyVec3329::from_vec([Poly3329::init(); D]);
 
-    for i in 0..k {
+    for i in 0..D {
         let (a, c) = b.split_at(32 * ell);
         p_vec.set(i, decode_to_poly(a, ell));
         b = c.clone();

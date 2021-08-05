@@ -45,9 +45,9 @@ pub fn compress_polyvec<const N: usize, const D: usize>(
     d: usize,
     q: usize,
 ) -> PolyVec3329<N, D> {
-    let mut coeffs = vec![];
-    for xi in x.coefficients.iter() {
-        coeffs.push(compress_poly(xi.clone(), d, q));
+    let mut coeffs = [Default::default(); D];
+    for i in 0..D {
+        coeffs[i] = compress_poly(x.coefficients[i], d, q);
     }
     PolyVec3329::from_vec(coeffs)
 }
@@ -58,9 +58,9 @@ pub fn decompress_polyvec<const N: usize, const D: usize>(
     d: usize,
     q: usize,
 ) -> PolyVec3329<N, D> {
-    let mut coeffs = vec![];
-    for xi in x.coefficients.iter() {
-        coeffs.push(decompress_poly(xi.clone(), d, q));
+    let mut coeffs = [Default::default(); D];
+    for i in 0..D {
+        coeffs[i] = decompress_poly(x.coefficients[i], d, q);
     }
     PolyVec3329::from_vec(coeffs)
 }

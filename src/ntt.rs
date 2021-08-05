@@ -36,7 +36,7 @@ pub fn bcm<const N: usize>(a: &Poly3329<N>, b: &Poly3329<N>) -> Poly3329<N> {
     if a.is_zero() || b.is_zero() {
         return Poly3329::zero();
     }
-    
+
     let mut p = Poly3329::init();
 
     for i in 0..=(N-1) / 2 {
@@ -103,20 +103,20 @@ pub fn ntt_product_matvec<const N: usize, const X: usize, const Y: usize>(
 
 /// Number theoretic Transform on vectors
 pub fn ntt_vec<const N: usize, const D: usize>(p: &PolyVec3329<N, D>) -> PolyVec3329<N, D> {
-    let mut c = vec![];
-    for p_i in p.coefficients.iter() {
-        c.push(base_ntt(p_i));
+    let mut coeffs = [Default::default(); D];
+    for i in 0..D {
+        coeffs[i] = base_ntt(&p.coefficients[i]);
     }
-    PolyVec3329::from_vec(c)
+    PolyVec3329::from_vec(coeffs)
 }
 
 /// Reverse NTT on vectors
 pub fn rev_ntt_vec<const N: usize, const D: usize>(p_hat: &PolyVec3329<N, D>) -> PolyVec3329<N, D> {
-    let mut c = vec![];
-    for p_i in p_hat.coefficients.iter() {
-        c.push(rev_ntt(p_i));
+    let mut coeffs = [Default::default(); D];
+    for i in 0..D {
+        coeffs[i] = rev_ntt(&p_hat.coefficients[i]);
     }
-    PolyVec3329::from_vec(c)
+    PolyVec3329::from_vec(coeffs)
 }
 
 /// Number theoretic Transform

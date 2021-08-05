@@ -18,7 +18,7 @@ where
 
 impl<K, const X: usize, const Y: usize> Matrix<K, X, Y>
 where
-    K: FiniteRing + Clone + Default,
+    K: FiniteRing + Clone + Default + Copy,
 {
     /// Initialise an empty `Matrix`
     ///      - `col_num`: number of columns

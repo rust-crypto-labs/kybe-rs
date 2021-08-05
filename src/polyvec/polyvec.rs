@@ -5,15 +5,15 @@
 use crate::polyvec::structures::{FiniteRing, RingModule};
 
 /// Polyvec
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct PolyVec<T: FiniteRing, const D: usize> {
     /// Vector coefficients
-    pub coefficients: Vec<T>,
+    pub coefficients: [T; D],
 }
 
 impl<T, const D: usize> RingModule<T> for PolyVec<T, D>
 where
-    T: FiniteRing + Clone + Default,
+    T: FiniteRing + Clone + Default + Copy,
 {
     fn get(&self, position: usize) -> T {
         self.coefficients[position].clone()
@@ -28,15 +28,15 @@ where
     }
 
     fn basis_vector(position: usize) -> Self {
-        let mut coefficients = vec![T::zero(); D];
-        coefficients[position] = T::one();
+        let mut v = Self::zero();
+        v.coefficients[position] = T::one();
 
-        Self { coefficients }
+        v
     }
 
     fn init() -> Self {
         Self {
-            coefficients: vec![T::zero(); D],
+            coefficients: [T::zero(); D],
         }
     }
 
@@ -53,7 +53,7 @@ where
     }
 
     fn add(&self, other: &Self) -> Self {
-        let mut v = vec![Default::default(); D];
+        let mut v = [Default::default(); D];
 
         for i in 0..D {
             v[i] = self.coefficients[i].add(&other.coefficients[i]);
@@ -62,7 +62,7 @@ where
     }
 
     fn sub(&self, other: &Self) -> Self {
-        let mut v = vec![];
+        let mut v = [Default::default(); D];
 
         for i in 0..D {
             v[i] = self.coefficients[i].sub(&other.coefficients[i])
@@ -80,7 +80,7 @@ where
     }
 
     fn mulf(&self, other: &T) -> Self {
-        let mut v = vec![];
+        let mut v = [Default::default(); D];
 
         for i in 0..D {
             v[i] = self.coefficients[i].mul(other)
@@ -91,11 +91,11 @@ where
 
 impl<T, const D: usize> Default for PolyVec<T, D>
 where
-    T: FiniteRing,
+    T: FiniteRing + Copy,
 {
     fn default() -> Self {
         Self {
-            coefficients: vec![],
+            coefficients: [T::zero(); D],
         }
     }
 }
@@ -104,7 +104,7 @@ impl<T, const D: usize> PolyVec<T, D>
 where
     T: FiniteRing + Clone + Default,
 {
-    pub fn from_vec(coefficients: Vec<T>) -> Self {
+    pub fn from_vec(coefficients: [T;D]) -> Self {
         Self { coefficients }
     }
 }
