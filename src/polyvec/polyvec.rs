@@ -26,28 +26,24 @@ where
         self.coefficients[position] = value;
     }
 
-    fn zero(&self) -> Self {
-        Self::init(self.dimension())
+    fn zero() -> Self {
+        Self::init()
     }
 
-    fn basis_vector(&self, position: usize) -> Self {
-        assert!(position < self.dimension());
-
-        let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); self.dimension()];
-        coefficients[position] = t.one();
+    fn basis_vector(position: usize) -> Self {
+        let mut coefficients = vec![T::zero(); D];
+        coefficients[position] = T::one();
 
         Self {
             coefficients,
-            dimension: self.dimension(),
+            dimension: D,
         }
     }
 
-    fn init(dimension: usize) -> Self {
-        let t: T = Default::default();
+    fn init() -> Self {
         Self {
-            coefficients: vec![t.zero(); dimension],
-            dimension,
+            coefficients: vec![T::zero(); D],
+            dimension: D,
         }
     }
 
@@ -60,8 +56,7 @@ where
     }
 
     fn neg(&self) -> Self {
-        let t = Self::init(self.dimension());
-        t.sub(self)
+        Self::init().sub(self)
     }
 
     fn dimension(&self) -> usize {
@@ -90,8 +85,7 @@ where
 
     fn dot(&self, other: &Self) -> T {
         assert_eq!(self.dimension(), other.dimension());
-        let t: T = Default::default();
-        let mut v = t.zero();
+        let mut v = T::zero();
 
         for i in 0..self.dimension() {
             v = v.add(&self.coefficients[i].mul(&other.coefficients[i]))

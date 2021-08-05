@@ -41,7 +41,7 @@ where
     /// Return a specific row
     pub fn row(&self, index: usize) -> PolyVec<K, X> {
         let (cols, rows) = self.dimensions();
-        let mut t = PolyVec::<K,X>::init(cols);
+        let mut t = PolyVec::<K,X>::init();
 
         for i in 0..cols {
             t.set(i, self.coefficients[index * rows + i].clone());
@@ -53,7 +53,7 @@ where
     /// Return a specific column
     pub fn column(&self, index: usize) -> PolyVec<K,Y> {
         let (cols, rows) = self.dimensions();
-        let mut t = PolyVec::<K,Y>::init(rows);
+        let mut t = PolyVec::<K,Y>::init();
 
         for i in 0..rows {
             t.set(i, self.coefficients[index * i + cols].clone());
@@ -83,7 +83,7 @@ where
         let (cols, rows) = self.dimensions();
         assert!(v.dimension() == rows);
 
-        let mut t = PolyVec::<K,Y>::init(cols);
+        let mut t = PolyVec::<K,Y>::init();
 
         for j in 0..cols {
             t.set(j, v.dot(&self.row(j)));

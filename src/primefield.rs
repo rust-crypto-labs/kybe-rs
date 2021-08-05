@@ -228,16 +228,16 @@ impl FiniteField for PrimeField3329 {
         self.val == 0
     }
 
-    fn zero(&self) -> Self {
+    fn zero() -> Self {
         Self { val: 0 }
     }
 
-    fn one(&self) -> Self {
+    fn one() -> Self {
         Self { val: 1 }
     }
 
     fn neg(&self) -> Self {
-        self.zero().sub(self)
+        Self::zero().sub(self)
     }
 
     fn add(&self, other: &Self) -> Self {

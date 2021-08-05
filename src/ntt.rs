@@ -36,7 +36,7 @@ pub fn bcm<const N: usize>(a: &Poly3329<N>, b: &Poly3329<N>) -> Poly3329<N> {
 
     // BCM with the zero polynomial is the zero polynomial
     if a.is_zero() || b.is_zero() {
-        return a.zero();
+        return Poly3329::zero();
     }
     // Unwraps safely since the case None has been tested above
     let d = a.degree().unwrap();
@@ -74,7 +74,7 @@ pub fn bcm_matrix_vec<const N: usize, const X: usize, const Y: usize>(a: &PolyMa
     let (x, y) = a.dimensions();
     assert_eq!(x, b.dimension());
 
-    let mut v = PolyVec3329::init(y);
+    let mut v = PolyVec3329::init();
 
     for i in 0..y {
         v.set(i, bcm_vec(&a.row(i), &b))
@@ -122,7 +122,7 @@ pub fn base_ntt<const N: usize>(p: &Poly3329<N>) -> Poly3329<N> {
 
     // Zero polynomial's NTT is zero
     if p.is_zero() {
-        return p.zero();
+        return Poly3329::zero();
     }
 
     // Unwraps safely since the case None has been tested above
@@ -158,7 +158,7 @@ pub fn rev_ntt<const N: usize>(p_hat: &Poly3329<N>) -> Poly3329<N> {
 
     // Zero polynomial's NTT is zero
     if p_hat.is_zero() {
-        return p_hat.zero();
+        return Poly3329::zero();
     }
     // Unwraps safely since the case None has been tested above
     let d = p_hat.degree().unwrap();

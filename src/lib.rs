@@ -80,7 +80,7 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
         }
     }
 
-    let (mut s, mut e) = (PolyVec3329::<256,2>::init(k), PolyVec3329::<256,2>::init(k));
+    let (mut s, mut e) = (PolyVec3329::<256,2>::init(), PolyVec3329::<256,2>::init());
     let prf_len = 64 * params.eta;
 
     for i in 0..k {
@@ -119,7 +119,7 @@ pub fn kyber_cpapke_enc(
         }
     }
 
-    let (mut r_bold, mut e1) = (PolyVec3329::<256,2>::init(params.k), PolyVec3329::<256,2>::init(params.k));
+    let (mut r_bold, mut e1) = (PolyVec3329::<256,2>::init(), PolyVec3329::<256,2>::init());
     for i in 0..params.k {
         r_bold.set(i, cbd(prf(&r, i, prf_len), params.eta));
         e1.set(i, cbd(prf(&r, params.k + i, prf_len), params.eta));

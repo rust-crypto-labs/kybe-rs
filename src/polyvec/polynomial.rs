@@ -32,74 +32,70 @@ where
         self.degree().is_none()
     }
 
-    fn zero(&self) -> Self {
-        let t: T = Default::default();
+    fn zero() -> Self {
         Polynomial {
-            coefficients: vec![t.zero()],
+            coefficients: vec![T::zero()],
             degree: None,
-            n: self.n,
+            n: N,
         }
     }
 
-    fn one(&self) -> Self {
-        let t: T = Default::default();
+    fn one() -> Self {
         Polynomial {
-            coefficients: vec![t.one()],
+            coefficients: vec![T::one()],
             degree: Some(0),
-            n: self.n,
+            n: N,
         }
     }
 
     fn neg(&self) -> Self {
         // If the polynomial is already zero, do nothing
         if self.is_zero() {
-            return self.zero();
+            return Self::zero();
         }
         // Unwraps safely since the case None has been tested above
         let degree = self.degree().unwrap();
 
-        let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); degree + 1];
+        let mut coefficients = vec![T::zero(); degree + 1];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = c.neg();
         }
         Polynomial {
             coefficients,
             degree: Some(degree),
-            n: self.n,
+            n: N,
         }
     }
 
     fn add(&self, other: &Self) -> Self {
         // If one of the polynomial is already zero, do nothing
         if self.is_zero() || other.is_zero() {
-            return other.zero();
+            return Self::zero();
         }
         // Unwraps safely since the case None has been tested above
         let mut degree: usize = self.degree().unwrap().max(other.degree().unwrap());
 
-        let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); degree + 1];
+        let mut coefficients = vec![T::zero(); degree + 1];
         for (i, c) in self.coefficients.iter().enumerate() {
             coefficients[i] = other.coefficients[i].add(c);
         }
 
         // Diminish degree if leading coefficient is zero
         let mut leading = &coefficients[degree];
-        while degree > 0 && leading.eq(&t.zero()) {
+        while degree > 0 && leading.eq(&T::zero()) {
             degree -= 1;
             leading = &coefficients[degree];
         }
 
         // Check whether the result is zero
-        if degree == 0 && leading.eq(&t.zero()) {
-            return self.zero();
+        if degree == 0 && leading.eq(&T::zero()) {
+            return Self::zero();
         }
 
         Polynomial {
             coefficients,
             degree: Some(degree),
-            n: self.n,
+            n: N,
         }
     }
 
@@ -114,9 +110,7 @@ where
         if other.is_zero() {
             return other.clone();
         }
-
-        let t: T = Default::default();
-        let coeffs = vec![t.zero(); self.n];
+        let coeffs = vec![T::zero(); self.n];
 
         for (i, a) in self.coefficients.iter().enumerate() {
             for (j, b) in other.coefficients.iter().enumerate() {
@@ -133,13 +127,13 @@ where
 
         // Reduce degree if appropriate
         let mut degree = self.n - 1;
-        while degree > 0 && coeffs[degree].eq(&t.zero()) {
+        while degree > 0 && coeffs[degree].eq(&T::zero()) {
             degree -= 1;
         }
 
         // Check for null polynomial (shouldn't happen but still)
-        if degree == 0 && coeffs[0].eq(&t.zero()) {
-            return self.zero();
+        if degree == 0 && coeffs[0].eq(&T::zero()) {
+            return Self::zero();
         }
 
         Self {
@@ -191,12 +185,11 @@ where
         assert!(coefficients.len() <= n);
 
         let degree = (n.min(coefficients.len()) - 1).try_into().unwrap();
-            
-        let t: T = Default::default();
+
         // Check for zero polynomial
-        if degree == 0 && coefficients[0].eq(&t.zero()) {
+        if degree == 0 && coefficients[0].eq(&T::zero()) {
             return Polynomial {
-                coefficients: vec![t.zero()],
+                coefficients: vec![T::zero()],
                 degree: None,
                 n,
             };
@@ -218,7 +211,7 @@ where
     pub fn mulf(&self, other: &T) -> Self {
         // If the polynomial or the scalar is already zero, do nothing
         if self.is_zero() || other.is_zero() {
-            return self.zero();
+            return Self::zero();
         }
         // Unwraps safely since the case None has been tested above
         let degree = self.degree().unwrap();

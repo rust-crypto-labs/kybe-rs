@@ -8,7 +8,7 @@ pub trait FiniteGroup: Sized + Eq {
     fn is_zero(&self) -> bool;
 
     /// Returns the additive identity
-    fn zero(&self) -> Self;
+    fn zero() -> Self;
 
     /// Returns the additive inverse of the element
     fn neg(&self) -> Self;
@@ -26,7 +26,7 @@ pub trait FiniteRing: Sized + Eq {
     fn is_zero(&self) -> bool;
 
     /// Returns the additive identity
-    fn zero(&self) -> Self;
+    fn zero() -> Self;
 
     /// Returns the additive inverse of the element
     fn neg(&self) -> Self;
@@ -38,7 +38,7 @@ pub trait FiniteRing: Sized + Eq {
     fn sub(&self, other: &Self) -> Self;
 
     /// Returns the multiplicative identity
-    fn one(&self) -> Self;
+    fn one() -> Self;
 
     /// Defines the multiplication of two elements
     fn mul(&self, other: &Self) -> Self;
@@ -50,7 +50,7 @@ pub trait FiniteField: Sized + Eq {
     fn is_zero(&self) -> bool;
 
     /// Returns the additive identity
-    fn zero(&self) -> Self;
+    fn zero() -> Self;
 
     /// Returns the additive inverse of the element
     fn neg(&self) -> Self;
@@ -62,7 +62,7 @@ pub trait FiniteField: Sized + Eq {
     fn sub(&self, other: &Self) -> Self;
 
     /// Returns the multiplicative identity
-    fn one(&self) -> Self;
+    fn one() -> Self;
 
     /// Defines the multiplication of two elements
     fn mul(&self, other: &Self) -> Self;
@@ -83,7 +83,7 @@ pub trait VectorSpace<T: FiniteField> {
     fn is_zero(&self) -> bool;
 
     /// Returns the additive identity
-    fn zero(&self) -> Self;
+    fn zero() -> Self;
 
     /// Returns the additive inverse of the element
     fn neg(&self) -> Self;
@@ -98,13 +98,13 @@ pub trait VectorSpace<T: FiniteField> {
     fn dimension(&self) -> usize;
 
     /// Initialise vector type
-    fn init(dimension: usize) -> Self;
+    fn init() -> Self;
 
     /// Scalar multiplication
     fn mulf(&self, other: &T) -> Self;
 
     /// Basis vector
-    fn basis_vector(&self, position: usize) -> Self;
+    fn basis_vector(position: usize) -> Self;
 
     /// Set coefficient
     fn set(&mut self, position: usize, value: T);
@@ -122,7 +122,7 @@ pub trait RingModule<T: FiniteRing> {
     fn is_zero(&self) -> bool;
 
     /// Returns the additive identity
-    fn zero(&self) -> Self;
+    fn zero() -> Self;
 
     /// Returns the additive inverse of the element
     fn neg(&self) -> Self;
@@ -137,13 +137,13 @@ pub trait RingModule<T: FiniteRing> {
     fn dimension(&self) -> usize;
 
     /// Initialise vector type
-    fn init(dimension: usize) -> Self;
+    fn init() -> Self;
 
     /// Scalar multiplication
     fn mulf(&self, other: &T) -> Self;
 
     /// Basis vector
-    fn basis_vector(&self, position: usize) -> Self;
+    fn basis_vector(position: usize) -> Self;
 
     /// Set coefficient
     fn set(&mut self, position: usize, value: T);
