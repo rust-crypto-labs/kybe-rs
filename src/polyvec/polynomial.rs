@@ -3,9 +3,7 @@
 //! Polynomial structure
 
 use crate::polyvec::structures::{FiniteField, FiniteRing};
-use std::{
-    ops::Index
-};
+use std::ops::Index;
 
 /// Represents a polynomial in the ring T[X]/(X^n + 1)
 #[derive(Clone)]
@@ -170,17 +168,15 @@ where
     }
 
     /// Init polynomial with specified coefficients
+    /// If the array is bigger than N, only the first N values are taken
     pub fn from_vec(mut coefficients: Vec<T>) -> Self {
-        // For now we make it an error to input more coefficients than we can handle
-        // In the future maybe we want to handle this more gracefully
-        assert!(coefficients.len() <= N);
         coefficients.truncate(N);
 
         let degree = N.min(coefficients.len()) - 1;
 
         // Check for zero polynomial
         if degree == 0 && coefficients[0].eq(&T::zero()) {
-            return Self::zero()
+            return Self::zero();
         }
 
         Self {
@@ -215,7 +211,6 @@ where
     /// Ignores values beyond the dimension of the polynomial
     pub fn set_coeff(&mut self, index: usize, val: T) {
         if index < N && !val.is_zero() {
-
             let degree = match self.degree() {
                 Some(d) if d < index => index,
                 None => index,
@@ -223,7 +218,6 @@ where
             };
 
             let mut coefficients = self.coefficients.clone();
-
 
             // Safe unwrap since degree becomes index if it was None
             coefficients.resize(degree + 1, T::zero());
@@ -233,7 +227,6 @@ where
             self.coefficients = coefficients;
         }
     }
-
 }
 
 impl<T, const N: usize> Index<usize> for Polynomial<T, N>

@@ -151,8 +151,8 @@ pub fn base_ntt<const N: usize>(p: &Poly3329<N>) -> Poly3329<N> {
             p0 = p0.add(&c0);
             p1 = p1.add(&c1);
         }
-        a.set_coeff(2 * i,p0);
-        a.set_coeff(2 * i + 1,p1);
+        a.set_coeff(2 * i, p0);
+        a.set_coeff(2 * i + 1, p1);
     }
 
     a
@@ -190,8 +190,8 @@ pub fn rev_ntt<const N: usize>(p_hat: &Poly3329<N>) -> Poly3329<N> {
         }
 
         // Unwraps safely since coeff is d/2 + 1
-        a.set_coeff(2 * i,p0.mul(&z).div(&coeff).unwrap());
-        a.set_coeff(2 * i + 1,p1.mul(&z).div(&coeff).unwrap());
+        a.set_coeff(2 * i, p0.mul(&z).div(&coeff).unwrap());
+        a.set_coeff(2 * i + 1, p1.mul(&z).div(&coeff).unwrap());
     }
 
     a
