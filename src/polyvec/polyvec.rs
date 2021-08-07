@@ -5,18 +5,15 @@
 use crate::polyvec::structures::{FiniteRing, RingModule};
 
 /// Polyvec
-#[derive(Clone)]
-pub struct PolyVec<T: FiniteRing> {
+#[derive(Clone, Copy)]
+pub struct PolyVec<T: FiniteRing, const D: usize> {
     /// Vector coefficients
-    pub coefficients: Vec<T>,
-
-    /// Size of vector
-    pub dimension: usize,
+    pub coefficients: [T; D],
 }
 
-impl<T> RingModule<T> for PolyVec<T>
+impl<T, const D: usize> RingModule<T> for PolyVec<T, D>
 where
-    T: FiniteRing + Clone + Default,
+    T: FiniteRing + Clone + Default + Copy,
 {
     fn get(&self, position: usize) -> T {
         self.coefficients[position].clone()
@@ -26,110 +23,88 @@ where
         self.coefficients[position] = value;
     }
 
-    fn zero(&self) -> Self {
-        Self::init(self.dimension())
+    fn zero() -> Self {
+        Self::init()
     }
 
-    fn basis_vector(&self, position: usize) -> Self {
-        assert!(position < self.dimension());
+    fn basis_vector(position: usize) -> Self {
+        let mut v = Self::zero();
+        v.coefficients[position] = T::one();
 
-        let t: T = Default::default();
-        let mut coefficients = vec![t.zero(); self.dimension()];
-        coefficients[position] = t.one();
-
-        Self {
-            coefficients,
-            dimension: self.dimension(),
-        }
+        v
     }
 
-    fn init(dimension: usize) -> Self {
-        let t: T = Default::default();
+    fn init() -> Self {
         Self {
-            coefficients: vec![t.zero(); dimension],
-            dimension,
+            coefficients: [T::zero(); D],
         }
     }
 
     fn is_zero(&self) -> bool {
-        if self.dimension == 0 {
-            true
-        } else {
-            self.coefficients.iter().all(|c| c.is_zero())
-        }
+        D == 0 || self.coefficients.iter().all(|c| c.is_zero())
     }
 
     fn neg(&self) -> Self {
-        let t = Self::init(self.dimension());
-        t.sub(self)
+        Self::init().sub(self)
     }
 
-    fn dimension(&self) -> usize {
-        self.dimension
+    fn dimension() -> usize {
+        D
     }
 
     fn add(&self, other: &Self) -> Self {
-        assert_eq!(self.dimension(), other.dimension());
-        let mut v = vec![Default::default(); self.dimension()];
+        let mut v = [Default::default(); D];
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v[i] = self.coefficients[i].add(&other.coefficients[i]);
         }
         Self::from_vec(v)
     }
 
     fn sub(&self, other: &Self) -> Self {
-        assert_eq!(self.dimension(), other.dimension());
-        let mut v = vec![];
+        let mut v = [Default::default(); D];
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v[i] = self.coefficients[i].sub(&other.coefficients[i])
         }
         Self::from_vec(v)
     }
 
     fn dot(&self, other: &Self) -> T {
-        assert_eq!(self.dimension(), other.dimension());
-        let t: T = Default::default();
-        let mut v = t.zero();
+        let mut v = T::zero();
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v = v.add(&self.coefficients[i].mul(&other.coefficients[i]))
         }
         v
     }
 
     fn mulf(&self, other: &T) -> Self {
-        let mut v = vec![];
+        let mut v = [Default::default(); D];
 
-        for i in 0..self.dimension() {
+        for i in 0..D {
             v[i] = self.coefficients[i].mul(other)
         }
         Self::from_vec(v)
     }
 }
 
-impl<T> Default for PolyVec<T>
+impl<T, const D: usize> Default for PolyVec<T, D>
 where
-    T: FiniteRing,
+    T: FiniteRing + Copy,
 {
     fn default() -> Self {
         Self {
-            coefficients: vec![],
-            dimension: 0,
+            coefficients: [T::zero(); D],
         }
     }
 }
 
-impl<T> PolyVec<T>
+impl<T, const D: usize> PolyVec<T, D>
 where
     T: FiniteRing + Clone + Default,
 {
-    pub fn from_vec(coefficients: Vec<T>) -> Self {
-        let dimension = coefficients.len();
-        Self {
-            coefficients,
-            dimension,
-        }
+    pub fn from_vec(coefficients: [T;D]) -> Self {
+        Self { coefficients }
     }
 }

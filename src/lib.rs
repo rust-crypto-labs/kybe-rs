@@ -54,13 +54,13 @@ pub use params::KyberParams;
 pub type F3329 = PrimeField3329;
 
 /// Polynomial Ring R_q = Z_q[X]/(X^n+1)
-pub type Poly3329 = Polynomial<F3329>;
+pub type Poly3329<const N: usize> = Polynomial<F3329, N>;
 
 /// Polynomial vector R_q^k
-pub type PolyVec3329 = PolyVec<Poly3329>;
+pub type PolyVec3329<const N: usize, const D: usize> = PolyVec<Poly3329<N>, D>;
 
 /// Polynomial matrix R_q^(k*k)
-pub type PolyMatrix3329 = Matrix<Poly3329>;
+pub type PolyMatrix3329<const N: usize, const X: usize, const Y: usize> = Matrix<Poly3329<N>, X, Y>;
 
 /// Default length used for XOF
 const XOF_LEN: usize = 4000;
@@ -72,20 +72,20 @@ pub fn kyber_cpapke_key_gen(params: KyberParams) -> (ByteArray, ByteArray) {
     let d = ByteArray::random(32);
     let (rho, sigma) = g(&d);
 
-    let mut a = PolyMatrix3329::init_matrix(k, k);
+    let mut a = PolyMatrix3329::init();
 
     for i in 0..k {
         for j in 0..k {
-            a.set(i, j, parse(&xof(&rho, j, i, XOF_LEN), params.n, params.q));
+            a.set(i, j, parse(&xof(&rho, j, i, XOF_LEN), params.q));
         }
     }
 
-    let (mut s, mut e) = (PolyVec3329::init(k), PolyVec3329::init(k));
+    let (mut s, mut e) = (PolyVec3329::<256, 2>::init(), PolyVec3329::<256, 2>::init());
     let prf_len = 64 * params.eta;
 
     for i in 0..k {
         s.set(i, cbd(prf(&sigma, i, prf_len), params.eta));
-        e.set(i, cbd(prf(&sigma, k + i, prf_len), params.eta));
+        e.set(i, cbd::<256>(prf(&sigma, k + i, prf_len), params.eta));
     }
     let s_hat = ntt_vec(&s);
     let e_hat = ntt_vec(&e);
@@ -111,15 +111,15 @@ pub fn kyber_cpapke_enc(
 
     let (t, rho) = pk.split_at(offset);
     let t_hat = decode_to_polyvec(t, 12);
-    let mut a_t = PolyMatrix3329::init_matrix(params.k, params.k);
+    let mut a_t = PolyMatrix3329::init();
 
     for i in 0..params.k {
         for j in 0..params.k {
-            a_t.set(i, j, parse(&xof(&rho, i, j, XOF_LEN), params.n, params.q));
+            a_t.set(i, j, parse(&xof(&rho, i, j, XOF_LEN), params.q));
         }
     }
 
-    let (mut r_bold, mut e1) = (PolyVec3329::init(params.k), PolyVec3329::init(params.k));
+    let (mut r_bold, mut e1) = (PolyVec3329::<256, 2>::init(), PolyVec3329::<256, 2>::init());
     for i in 0..params.k {
         r_bold.set(i, cbd(prf(&r, i, prf_len), params.eta));
         e1.set(i, cbd(prf(&r, params.k + i, prf_len), params.eta));
@@ -131,7 +131,11 @@ pub fn kyber_cpapke_enc(
 
     let v = ntt_product_vec(&t_hat, &r_hat)
         .add(&e2)
-        .add(&decompress_poly(decode_to_poly(m.clone(), 1), 1, params.q));
+        .add(&decompress_poly(
+            decode_to_poly::<256>(m.clone(), 1),
+            1,
+            params.q,
+        ));
 
     let c1 = encode_polyvec(compress_polyvec(u_bold, params.du, params.q), params.du);
     let c2 = encode_poly(compress_poly(v, params.dv, params.q), params.dv);
@@ -145,7 +149,11 @@ pub fn kyber_cpapke_dec(params: KyberParams, sk: &ByteArray, c: &ByteArray) -> B
     let offset = params.du * params.k * params.n / 8;
     let (c1, c2) = c.split_at(offset);
 
-    let u = decompress_polyvec(decode_to_polyvec(c1, params.du), params.du, params.q);
+    let u = decompress_polyvec(
+        decode_to_polyvec::<256, 2>(c1, params.du),
+        params.du,
+        params.q,
+    );
     let v = decompress_poly(decode_to_poly(c2, params.dv), params.dv, params.q);
     let s = decode_to_polyvec(sk.clone(), 12);
 

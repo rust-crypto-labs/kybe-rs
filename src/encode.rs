@@ -9,21 +9,21 @@ use crate::{
 
 /// Deserialize ByteArray into Polynomial
 /// Algorithm 3 p. 8
-pub fn decode_to_poly(bs: ByteArray, ell: usize) -> Poly3329 {
-    let mut f = vec![F3329::from_int(0); 256];
+pub fn decode_to_poly<const N: usize>(bs: ByteArray, ell: usize) -> Poly3329<N> {
+    let mut f = [F3329::zero(); N];
 
-    for i in 0..256 {
+    for i in 0..N {
         for j in 0..ell {
             if bs.get_bit(i * ell + j) {
                 f[i] = f[i].add(&F3329::from_int(1 << j));
             }
         }
     }
-    Poly3329::from_vec(f, 256)
+    Poly3329::from_vec(f)
 }
 
 /// Serialize Poly into ByteArray
-pub fn encode_poly(p: Poly3329, ell: usize) -> ByteArray {
+pub fn encode_poly<const N: usize>(p: Poly3329<N>, ell: usize) -> ByteArray {
     let mut b = vec![];
     let mut c: u8 = 0;
 
@@ -47,12 +47,15 @@ pub fn encode_poly(p: Poly3329, ell: usize) -> ByteArray {
 }
 
 /// Deserialize ByteArray into PolyVec
-pub fn decode_to_polyvec(bs: ByteArray, ell: usize) -> PolyVec3329 {
+pub fn decode_to_polyvec<const N: usize, const D: usize>(
+    bs: ByteArray,
+    ell: usize,
+) -> PolyVec3329<N, D> {
     let k = bs.data.len() / (32 * ell);
     let mut b = bs;
-    let mut p_vec = PolyVec3329::from_vec(vec![Poly3329::init(256); k]);
+    let mut p_vec = PolyVec3329::from_vec([Poly3329::init(); D]);
 
-    for i in 0..k {
+    for i in 0..D {
         let (a, c) = b.split_at(32 * ell);
         p_vec.set(i, decode_to_poly(a, ell));
         b = c.clone();
@@ -62,11 +65,13 @@ pub fn decode_to_polyvec(bs: ByteArray, ell: usize) -> PolyVec3329 {
 }
 
 /// Serialize PolyVec into ByteArray
-pub fn encode_polyvec(p_vec: PolyVec3329, s: usize) -> ByteArray {
+pub fn encode_polyvec<const N: usize, const D: usize>(
+    p_vec: PolyVec3329<N, D>,
+    s: usize,
+) -> ByteArray {
     let mut b = ByteArray::new();
-    let ell = p_vec.dimension();
 
-    for i in 0..ell {
+    for i in 0..D {
         let p = p_vec.get(i);
         b = b.append(&encode_poly(p, s));
     }
