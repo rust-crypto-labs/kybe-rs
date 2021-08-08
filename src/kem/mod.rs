@@ -1,6 +1,6 @@
+use crate::functions::utils::{g, h, kdf};
 use crate::pke::PKE;
-use crate::utils::{g, h, kdf};
-use crate::ByteArray;
+use crate::structures::ByteArray;
 
 pub struct KEM<const N: usize, const K: usize> {
     pke: PKE<N, K>,

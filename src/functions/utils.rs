@@ -2,7 +2,7 @@
 //!
 //! Various utils functions defined for the KEM anf PKE algorithms
 use crate::{
-    hash,
+    functions::hash,
     structures::{algebraics::FiniteField, ByteArray, Poly3329, F3329},
 };
 

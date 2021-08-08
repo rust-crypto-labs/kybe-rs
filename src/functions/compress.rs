@@ -2,10 +2,10 @@
 //!
 //! Utils for compressing/decompressing integers, polynomials and polyvec
 
-use crate::{Poly3329, PolyVec3329, F3329};
+use crate::structures::{Poly3329, PolyVec3329, F3329};
 
 /// Compress function on coefficients, p. 6
-pub fn compress_integer(x: usize, d: usize, q: usize) -> usize {
+fn compress_integer(x: usize, d: usize, q: usize) -> usize {
     let m = 1 << d;
     let f = (m as f64) / (q as f64);
     let f = f * (x as f64);
@@ -14,7 +14,7 @@ pub fn compress_integer(x: usize, d: usize, q: usize) -> usize {
 }
 
 /// Decompress function on coefficients, p. 6
-pub fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
+fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
     let m = 1 << d;
     let f = (q as f64 * x as f64) / (m as f64);
 
