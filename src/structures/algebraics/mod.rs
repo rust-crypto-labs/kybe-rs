@@ -1,6 +1,6 @@
-//! Structures
+//! Algebraics
 //!
-//! Basic Traits for algebraic structures
+//! Definiton of basic algebraic structures (Ring, Field, Polynomial, Vector, Matrix)
 
 mod matrix;
 mod polynomial;

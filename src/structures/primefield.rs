@@ -1,6 +1,9 @@
 use crate::structures::algebraics::FiniteField;
 
 use std::fmt::Debug;
+
+/// Inversion table on the Finite Field F_3329
+/// INV_3329[i] = i^-1 mod 3329
 const INV_3329: [usize; 3329] = [
     0, 1, 1665, 1110, 2497, 666, 555, 2378, 2913, 370, 333, 908, 1942, 3073, 1189, 222, 3121, 1175,
     185, 2453, 1831, 3012, 454, 579, 971, 799, 3201, 1233, 2259, 574, 111, 1933, 3225, 2522, 2252,

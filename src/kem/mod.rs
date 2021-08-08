@@ -1,3 +1,7 @@
+//! Key Encapsulation Module
+//!
+//! Structure that handles all the parameters and functions required to perform the KEM
+
 use crate::functions::utils::{g, h, kdf};
 use crate::pke::PKE;
 use crate::structures::ByteArray;

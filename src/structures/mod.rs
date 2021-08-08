@@ -1,6 +1,6 @@
-//! Polyvec
+//! Structures
 //!
-//! Definiton of basic algebraic structures (Ring, Field, Polynomial, Vector, Matrix)
+//! Definiton of all structures used across the crate
 
 mod bytearray;
 mod primefield;

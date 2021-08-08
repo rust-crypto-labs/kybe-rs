@@ -1,3 +1,7 @@
+//! Public Key Encryption
+//!
+//! Structure that handles all the parameters and functions required to perform the PKE
+
 use crate::functions::{
     compress::*,
     encode::*,
