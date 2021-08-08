@@ -37,7 +37,7 @@ mod pke;
 mod polyvec;
 mod utils;
 
-use bytearray::ByteArray;
+pub use bytearray::ByteArray;
 use polyvec::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
 
 use kem::KEM;
