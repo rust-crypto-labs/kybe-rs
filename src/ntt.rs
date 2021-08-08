@@ -2,7 +2,7 @@
 //!
 //! NTT operations and operations performed in the NTT domain
 
-use crate::polyvec::structures::{FiniteField, FiniteRing, RingModule};
+use crate::structures::algebraics::{FiniteField, FiniteRing, RingModule};
 use crate::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
 
 /// 256-roots of unity

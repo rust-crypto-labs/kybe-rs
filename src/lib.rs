@@ -27,18 +27,17 @@
 
 extern crate sha3;
 
-mod bytearray;
 mod compress;
 mod encode;
 mod hash;
 mod kem;
 mod ntt;
 mod pke;
-mod polyvec;
+mod structures;
 mod utils;
 
-pub use bytearray::ByteArray;
-use polyvec::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
+pub use structures::ByteArray;
+use structures::{Poly3329, PolyMatrix3329, PolyVec3329, F3329};
 
 use kem::KEM;
 use pke::PKE;

@@ -1,17 +1,18 @@
 //! Polyvec
 //!
 //! Definiton of basic algebraic structures (Ring, Field, Polynomial, Vector, Matrix)
-pub mod structures;
 
-mod matrix;
-mod polynomial;
-mod polyvec;
+mod bytearray;
 mod primefield;
 
-use matrix::Matrix;
-use polynomial::Polynomial;
-use polyvec::PolyVec;
+pub mod algebraics;
+
+use algebraics::Matrix;
+use algebraics::PolyVec;
+use algebraics::Polynomial;
 use primefield::PrimeField3329;
+
+pub use bytearray::ByteArray;
 
 /// Finitefield Z_q
 pub type F3329 = PrimeField3329;

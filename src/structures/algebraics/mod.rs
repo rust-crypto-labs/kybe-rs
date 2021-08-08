@@ -2,6 +2,14 @@
 //!
 //! Basic Traits for algebraic structures
 
+mod matrix;
+mod polynomial;
+mod polyvec;
+
+pub use matrix::Matrix;
+pub use polynomial::Polynomial;
+pub use polyvec::PolyVec;
+
 /// Finite Group element
 pub trait FiniteGroup: Sized + Eq {
     /// Check if the element is the additive identity

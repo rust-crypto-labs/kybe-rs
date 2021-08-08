@@ -1,4 +1,4 @@
-use crate::polyvec::structures::FiniteField;
+use crate::structures::algebraics::FiniteField;
 
 use std::fmt::Debug;
 const INV_3329: [usize; 3329] = [

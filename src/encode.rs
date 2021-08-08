@@ -2,8 +2,8 @@
 //!
 //! Utils to serialize/deserialize polynomial and polyvec
 
-use crate::{
-    polyvec::structures::{FiniteField, RingModule},
+use crate::structures::{
+    algebraics::{FiniteField, RingModule},
     ByteArray, Poly3329, PolyVec3329, F3329,
 };
 

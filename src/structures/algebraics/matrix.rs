@@ -2,8 +2,7 @@
 //!
 //! Matrix definiton to match polyvec
 
-use crate::polyvec::polyvec::PolyVec;
-use crate::polyvec::structures::{FiniteRing, RingModule};
+use crate::structures::algebraics::{FiniteRing, PolyVec, RingModule};
 
 use std::fmt::{self, Debug};
 

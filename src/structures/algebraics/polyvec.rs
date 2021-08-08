@@ -2,7 +2,7 @@
 //!
 //! Polynomial vector definition
 
-use crate::polyvec::structures::{FiniteRing, RingModule};
+use crate::structures::algebraics::{FiniteRing, RingModule};
 
 /// Polyvec
 #[derive(Clone, Copy)]

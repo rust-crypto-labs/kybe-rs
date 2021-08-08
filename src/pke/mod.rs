@@ -1,9 +1,9 @@
 use crate::compress::{compress_poly, compress_polyvec, decompress_poly, decompress_polyvec};
 use crate::encode::{decode_to_poly, decode_to_polyvec, encode_poly, encode_polyvec};
 use crate::ntt::{bcm_matrix_vec, ntt_product_matvec, ntt_product_vec, ntt_vec};
-use crate::polyvec::structures::{FiniteRing, RingModule};
+use crate::structures::algebraics::{FiniteRing, RingModule};
+use crate::structures::{ByteArray, PolyMatrix3329, PolyVec3329};
 use crate::utils::{cbd, g, parse, prf, xof};
-use crate::{ByteArray, PolyMatrix3329, PolyVec3329};
 
 /// Default length used for XOF
 const XOF_LEN: usize = 4000;
