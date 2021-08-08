@@ -14,7 +14,7 @@ where
     K: FiniteRing + Clone + Default,
 {
     /// Internal representation as a list of elements of type `T`
-    coefficients: [[K; X];Y],
+    coefficients: [[K; X]; Y],
 }
 
 impl<K, const X: usize, const Y: usize> Matrix<K, X, Y>
@@ -26,7 +26,7 @@ where
     ///      - `col_dim`: number of rows
     pub fn init() -> Self {
         Self {
-            coefficients: [[Default::default(); X];Y],
+            coefficients: [[Default::default(); X]; Y],
         }
     }
 
