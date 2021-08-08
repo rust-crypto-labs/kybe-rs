@@ -1,13 +1,13 @@
-use kybe_rs::{kyber_cpapke_dec, kyber_cpapke_enc, kyber_cpapke_key_gen, ByteArray, KyberParams};
+use kybe_rs::{kyber768pke, ByteArray};
 
 fn main() {
-    let params = KyberParams::kyber768();
+    let pke = kyber768pke();
     let m = ByteArray::random(32);
     let r = ByteArray::random(32);
 
-    let (sk, pk) = kyber_cpapke_key_gen(params);
-    let enc = kyber_cpapke_enc(params, &pk, &m, r.clone());
-    let dec = kyber_cpapke_dec(params, &sk, &enc);
+    let (sk, pk) = pke.keygen();
+    let enc = pke.encrypt(&pk, &m, r.clone());
+    let dec = pke.decrypt(&sk, &enc);
 
     println!("{:?}", dec);
 }
