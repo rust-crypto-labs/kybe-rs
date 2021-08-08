@@ -110,3 +110,43 @@ impl<const N: usize, const K: usize> PKE<N, K> {
         Self { q, eta, du, dv }
     }
 }
+
+#[test]
+fn pke_keygen_cpapke_512() {
+    let pke = crate::kyber512pke();
+    pke.keygen();
+}
+
+#[test]
+fn pke_keygen_cpapke_768() {
+    let pke = crate::kyber768pke();
+    pke.keygen();
+}
+
+#[test]
+fn encrypt_then_decrypt_cpapke_512() {
+    let pke = crate::kyber512pke();
+    let (sk, pk) = pke.keygen();
+
+    let m = ByteArray::random(32);
+    let r = ByteArray::random(32);
+
+    let enc = pke.encrypt(&pk, &m, r);
+    let dec = pke.decrypt(&sk, &enc);
+
+    assert_eq!(m, dec);
+}
+
+#[test]
+fn encrypt_then_decrypt_cpapke_768() {
+    let pke = crate::kyber768pke();
+    let (sk, pk) = pke.keygen();
+
+    let m = ByteArray::random(32);
+    let r = ByteArray::random(32);
+
+    let enc = pke.encrypt(&pk, &m, r);
+    let dec = pke.decrypt(&sk, &enc);
+
+    assert_eq!(m, dec);
+}

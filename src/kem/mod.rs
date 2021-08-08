@@ -75,3 +75,35 @@ impl<const N: usize, const K: usize> KEM<N, K> {
         }
     }
 }
+
+#[test]
+fn kem_keygen_ccakem_512() {
+    let kem = crate::kyber512kem();
+    kem.keygen();
+}
+
+#[test]
+fn kem_keygen_ccakem_768() {
+    let kem = crate::kyber768kem();
+    kem.keygen();
+}
+
+#[test]
+fn encapsulate_then_decapsulate_ccakem_512() {
+    let kem = crate::kyber512kem();
+
+    let (sk, pk) = kem.keygen();
+    let (ctx, shk) = kem.encaps(&pk);
+    let shk2 = kem.decaps(&ctx, &sk);
+    assert_eq!(shk, shk2);
+}
+
+#[test]
+fn encapsulate_then_decapsulate_ccakem_768() {
+    let kem = crate::kyber768kem();
+
+    let (sk, pk) = kem.keygen();
+    let (ctx, shk) = kem.encaps(&pk);
+    let shk2 = kem.decaps(&ctx, &sk);
+    assert_eq!(shk, shk2);
+}

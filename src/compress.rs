@@ -64,3 +64,11 @@ pub fn decompress_polyvec<const N: usize, const D: usize>(
     }
     PolyVec3329::from_vec(coeffs)
 }
+
+#[test]
+fn compress_decompress_poly() {
+    let original = Poly3329::from_vec([Default::default(); 256]);
+    let encoded = compress_poly(original.clone(), 12, 3329);
+    let decoded = decompress_poly(encoded, 12, 3329);
+    assert!(decoded == original);
+}
