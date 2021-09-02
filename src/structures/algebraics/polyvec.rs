@@ -16,7 +16,7 @@ where
     T: FiniteRing + Clone + Default + Copy,
 {
     fn get(&self, position: usize) -> T {
-        self.coefficients[position].clone()
+        self.coefficients[position]
     }
 
     fn set(&mut self, position: usize, value: T) {
@@ -55,8 +55,8 @@ where
     fn add(&self, other: &Self) -> Self {
         let mut v = [Default::default(); D];
 
-        for i in 0..D {
-            v[i] = self.coefficients[i].add(&other.coefficients[i]);
+        for (i, el) in v.iter_mut().enumerate() {
+            *el = self.coefficients[i].add(&other.coefficients[i]);
         }
         Self::from_vec(v)
     }
@@ -64,8 +64,8 @@ where
     fn sub(&self, other: &Self) -> Self {
         let mut v = [Default::default(); D];
 
-        for i in 0..D {
-            v[i] = self.coefficients[i].sub(&other.coefficients[i])
+        for (i, el) in v.iter_mut().enumerate() {
+            *el = self.coefficients[i].sub(&other.coefficients[i])
         }
         Self::from_vec(v)
     }
@@ -82,8 +82,8 @@ where
     fn mulf(&self, other: &T) -> Self {
         let mut v = [Default::default(); D];
 
-        for i in 0..D {
-            v[i] = self.coefficients[i].mul(other)
+        for (i, el) in v.iter_mut().enumerate() {
+            *el = self.coefficients[i].mul(other)
         }
         Self::from_vec(v)
     }

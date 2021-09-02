@@ -6,9 +6,11 @@ use crate::functions::utils::{g, h, kdf};
 use crate::pke::PKE;
 use crate::structures::ByteArray;
 
+#[derive(Clone, Copy)]
 pub struct KEM<const N: usize, const K: usize> {
     pke: PKE<N, K>,
     delta: usize,
+    ss_size: usize,
     pk_size: usize,
     sk_size: usize,
     ct_size: usize,
@@ -38,7 +40,7 @@ impl<const N: usize, const K: usize> KEM<N, K> {
         let c = self.pke.encrypt(pk, &m1.append(&m2), r);
 
         let (h1, h2) = h(&c);
-        let k = kdf(&ByteArray::concat(&[&k_bar, &h1, &h2]), self.sk_size);
+        let k = kdf(&ByteArray::concat(&[&k_bar, &h1, &h2]), self.ss_size);
 
         (c, k)
     }
@@ -47,8 +49,8 @@ impl<const N: usize, const K: usize> KEM<N, K> {
     /// Algorithm 9 p. 11
     pub fn decaps(&self, c: &ByteArray, sk: &ByteArray) -> ByteArray {
         // Spliting sk = (sk'||pk||H(pk)||z)
-        let (sk_prime, rem) = sk.split_at(12 * K * N / 8);
-        let (pk, rem) = rem.split_at(12 * K * N / 8 + 32);
+        let (sk_prime, rem) = sk.split_at(self.sk_size);
+        let (pk, rem) = rem.split_at(self.pk_size);
         let (hash, z) = rem.split_at(32);
 
         let m = self.pke.decrypt(&sk_prime, c);
@@ -57,25 +59,21 @@ impl<const N: usize, const K: usize> KEM<N, K> {
 
         let (h1, h2) = h(c);
         if *c == c_prime {
-            kdf(&ByteArray::concat(&[&k_bar, &h1, &h2]), self.sk_size)
+            kdf(&ByteArray::concat(&[&k_bar, &h1, &h2]), self.ss_size)
         } else {
-            kdf(&ByteArray::concat(&[&z, &h1, &h2]), self.sk_size)
+            kdf(&ByteArray::concat(&[&z, &h1, &h2]), self.ss_size)
         }
     }
 
-    pub const fn init(
-        pke: PKE<N, K>,
-        delta: usize,
-        pk_size: usize,
-        sk_size: usize,
-        ct_size: usize,
-    ) -> Self {
+    pub const fn init(pke: PKE<N, K>, delta: usize, ss_size: usize, d: (usize, usize)) -> Self {
+        let (du, dv) = d;
         Self {
             pke,
             delta,
-            pk_size,
-            sk_size,
-            ct_size,
+            ss_size,
+            pk_size: 12 * K * N / 8 + 32,
+            sk_size: 12 * K * N / 8,
+            ct_size: (du * K + dv) * N / 8,
         }
     }
 }
@@ -93,6 +91,12 @@ fn kem_keygen_ccakem_768() {
 }
 
 #[test]
+fn kem_keygen_ccakem_1024() {
+    let kem = crate::kyber1024kem();
+    kem.keygen();
+}
+
+#[test]
 fn encapsulate_then_decapsulate_ccakem_512() {
     let kem = crate::kyber512kem();
 
@@ -105,6 +109,16 @@ fn encapsulate_then_decapsulate_ccakem_512() {
 #[test]
 fn encapsulate_then_decapsulate_ccakem_768() {
     let kem = crate::kyber768kem();
+
+    let (sk, pk) = kem.keygen();
+    let (ctx, shk) = kem.encaps(&pk);
+    let shk2 = kem.decaps(&ctx, &sk);
+    assert_eq!(shk, shk2);
+}
+
+#[test]
+fn encapsulate_then_decapsulate_ccakem_1024() {
+    let kem = crate::kyber1024kem();
 
     let (sk, pk) = kem.keygen();
     let (ctx, shk) = kem.encaps(&pk);

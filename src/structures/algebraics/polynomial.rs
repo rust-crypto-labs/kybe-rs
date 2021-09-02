@@ -65,8 +65,8 @@ where
         let mut degree: usize = self.degree().unwrap().max(other.degree().unwrap());
 
         let mut coefficients = [T::zero(); N];
-        for i in 0..N {
-            coefficients[i] = self[i].add(&other[i]);
+        for (i, el) in coefficients.iter_mut().enumerate() {
+            *el = self[i].add(&other[i]);
         }
 
         // Diminish degree if leading coefficient is zero
@@ -199,8 +199,8 @@ where
 
         let mut v = [Default::default(); N];
 
-        for i in 0..degree {
-            v[i] = self.coefficients[i].mul(other)
+        for (i, el) in v.iter_mut().enumerate().take(degree) {
+            *el = self.coefficients[i].mul(other)
         }
         Self::from_vec(v)
     }

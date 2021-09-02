@@ -44,7 +44,7 @@ where
         let mut t = PolyVec::<K, Y>::init();
 
         for i in 0..Y {
-            t.set(i, self.coefficients[index * X][i].clone());
+            t.set(i, self.coefficients[index * X][i]);
         }
 
         t

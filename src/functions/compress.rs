@@ -6,26 +6,25 @@ use crate::structures::{Poly3329, PolyVec3329, F3329};
 
 /// Compress function on coefficients, p. 6
 fn compress_integer(x: usize, d: usize, q: usize) -> usize {
-    let m = 1 << d;
-    let f = (m as f64) / (q as f64);
-    let f = f * (x as f64);
+    let power = 1 << d;
+    let compressed = (power as f64) / (q as f64) * (x as f64);
 
-    (f.round() as usize) % m
+    (compressed.round() as usize) % power
 }
 
 /// Decompress function on coefficients, p. 6
 fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
-    let m = 1 << d;
-    let f = (q as f64 * x as f64) / (m as f64);
+    let power = 1 << d;
+    let compressed = (q as f64) * (x as f64) / (power as f64);
 
-    f.round() as usize
+    compressed.round() as usize
 }
 
 /// Compress function on R_q
 pub fn compress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Poly3329<N> {
     let mut coeffs = [Default::default(); N];
-    for i in 0..N {
-        coeffs[i] = F3329::from_int(compress_integer(x[i].to_int(), d, q));
+    for (i, el) in coeffs.iter_mut().enumerate() {
+        *el = F3329::from_int(compress_integer(x[i].to_int(), d, q));
     }
     Poly3329::from_vec(coeffs)
 }
@@ -33,8 +32,8 @@ pub fn compress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Poly
 /// Deompress function on R_q
 pub fn decompress_poly<const N: usize>(x: Poly3329<N>, d: usize, q: usize) -> Poly3329<N> {
     let mut coeffs = [Default::default(); N];
-    for i in 0..N {
-        coeffs[i] = F3329::from_int(decompress_integer(x[i].to_int(), d, q));
+    for (i, el) in coeffs.iter_mut().enumerate() {
+        *el = F3329::from_int(decompress_integer(x[i].to_int(), d, q));
     }
     Poly3329::from_vec(coeffs)
 }
@@ -46,8 +45,8 @@ pub fn compress_polyvec<const N: usize, const D: usize>(
     q: usize,
 ) -> PolyVec3329<N, D> {
     let mut coeffs = [Default::default(); D];
-    for i in 0..D {
-        coeffs[i] = compress_poly(x.coefficients[i], d, q);
+    for (i, el) in coeffs.iter_mut().enumerate() {
+        *el = compress_poly(x.coefficients[i], d, q);
     }
     PolyVec3329::from_vec(coeffs)
 }
@@ -59,8 +58,8 @@ pub fn decompress_polyvec<const N: usize, const D: usize>(
     q: usize,
 ) -> PolyVec3329<N, D> {
     let mut coeffs = [Default::default(); D];
-    for i in 0..D {
-        coeffs[i] = decompress_poly(x.coefficients[i], d, q);
+    for (i, el) in coeffs.iter_mut().enumerate() {
+        *el = decompress_poly(x.coefficients[i], d, q);
     }
     PolyVec3329::from_vec(coeffs)
 }
