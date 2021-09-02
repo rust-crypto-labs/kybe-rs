@@ -2,11 +2,10 @@
 //!
 //! Wrapper around the sha3 crates various hash functions
 
-use crate::sha3::digest::ExtendableOutput;
-use crate::sha3::digest::XofReader;
-use crate::sha3::Digest;
-
-use sha3::{Sha3_256, Sha3_512, Shake128, Shake256};
+use sha3::{
+    digest::{ExtendableOutput, XofReader},
+    Digest, Sha3_256, Sha3_512, Shake128, Shake256,
+};
 
 /// shake-128 wrapper
 pub fn shake_128(data: &[u8], len: usize) -> Vec<u8> {

@@ -2,7 +2,8 @@
 //!
 //! Polynomial structure
 
-use crate::polyvec::structures::{FiniteField, FiniteRing};
+use crate::structures::algebraics::{FiniteField, FiniteRing};
+
 use std::ops::Index;
 
 /// Represents a polynomial in the ring T[X]/(X^n + 1)

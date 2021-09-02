@@ -2,10 +2,10 @@
 //!
 //! Utils for compressing/decompressing integers, polynomials and polyvec
 
-use crate::{Poly3329, PolyVec3329, F3329};
+use crate::structures::{Poly3329, PolyVec3329, F3329};
 
 /// Compress function on coefficients, p. 6
-pub fn compress_integer(x: usize, d: usize, q: usize) -> usize {
+fn compress_integer(x: usize, d: usize, q: usize) -> usize {
     let m = 1 << d;
     let f = (m as f64) / (q as f64);
     let f = f * (x as f64);
@@ -14,7 +14,7 @@ pub fn compress_integer(x: usize, d: usize, q: usize) -> usize {
 }
 
 /// Decompress function on coefficients, p. 6
-pub fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
+fn decompress_integer(x: usize, d: usize, q: usize) -> usize {
     let m = 1 << d;
     let f = (q as f64 * x as f64) / (m as f64);
 
@@ -63,4 +63,12 @@ pub fn decompress_polyvec<const N: usize, const D: usize>(
         coeffs[i] = decompress_poly(x.coefficients[i], d, q);
     }
     PolyVec3329::from_vec(coeffs)
+}
+
+#[test]
+fn compress_decompress_poly() {
+    let original = Poly3329::from_vec([Default::default(); 256]);
+    let encoded = compress_poly(original.clone(), 12, 3329);
+    let decoded = decompress_poly(encoded, 12, 3329);
+    assert!(decoded == original);
 }

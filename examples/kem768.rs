@@ -1,11 +1,11 @@
-use kybe_rs::{kyber_ccakem_dec, kyber_ccakem_enc, kyber_ccakem_key_gen, KyberParams};
+use kybe_rs::kyber768kem;
 
 fn main() {
-    let params = KyberParams::kyber768();
+    let kem = kyber768kem();
 
-    let (sk, pk) = kyber_ccakem_key_gen(params);
-    let (ctx, _shk) = kyber_ccakem_enc(params, &pk);
-    let shk2 = kyber_ccakem_dec(params, &ctx, &sk);
+    let (sk, pk) = kem.keygen();
+    let (ctx, _shk) = kem.encaps(&pk);
+    let shk2 = kem.decaps(&ctx, &sk);
 
     println!("{:?}", shk2);
 }

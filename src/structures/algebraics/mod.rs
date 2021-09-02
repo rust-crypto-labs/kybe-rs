@@ -1,6 +1,14 @@
-//! Structures
+//! Algebraics
 //!
-//! Basic Traits for algebraic structures
+//! Definiton of basic algebraic structures (Ring, Field, Polynomial, Vector, Matrix)
+
+mod matrix;
+mod polynomial;
+mod polyvec;
+
+pub use matrix::Matrix;
+pub use polynomial::Polynomial;
+pub use polyvec::PolyVec;
 
 /// Finite Group element
 pub trait FiniteGroup: Sized + Eq {

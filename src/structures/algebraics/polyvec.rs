@@ -2,7 +2,7 @@
 //!
 //! Polynomial vector definition
 
-use crate::polyvec::structures::{FiniteRing, RingModule};
+use crate::structures::algebraics::{FiniteRing, RingModule};
 
 /// Polyvec
 #[derive(Clone, Copy)]
@@ -104,7 +104,7 @@ impl<T, const D: usize> PolyVec<T, D>
 where
     T: FiniteRing + Clone + Default,
 {
-    pub fn from_vec(coefficients: [T;D]) -> Self {
+    pub fn from_vec(coefficients: [T; D]) -> Self {
         Self { coefficients }
     }
 }

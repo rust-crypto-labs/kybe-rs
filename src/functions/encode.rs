@@ -2,8 +2,8 @@
 //!
 //! Utils to serialize/deserialize polynomial and polyvec
 
-use crate::{
-    polyvec::structures::{FiniteField, RingModule},
+use crate::structures::{
+    algebraics::{FiniteField, RingModule},
     ByteArray, Poly3329, PolyVec3329, F3329,
 };
 
@@ -77,4 +77,12 @@ pub fn encode_polyvec<const N: usize, const D: usize>(
     }
 
     b
+}
+
+#[test]
+fn encode_decode_poly() {
+    let original = Poly3329::from_vec([Default::default(); 256]);
+    let encoded = encode_poly(original.clone(), 12);
+    let decoded = decode_to_poly(encoded, 12);
+    assert!(decoded == original);
 }
