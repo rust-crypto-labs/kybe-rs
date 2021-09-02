@@ -102,25 +102,23 @@ impl<const N: usize, const K: usize> PKE<N, K> {
 
     /// Kyber CPAPKE Decryption : secret key, ciphertext => message
     /// Algorithm 6 p. 10
-    pub fn decrypt(&self, sk: &ByteArray, c: &ByteArray) -> ByteArray {
+    pub fn decrypt(&self, sk: &ByteArray, ct: &ByteArray) -> ByteArray {
         let (du, dv) = self.d;
 
         let offset = du * K * N / 8;
-        let (c1, c2) = c.split_at(offset);
+        let (c1, c2) = ct.split_at(offset);
 
         let u = decompress_polyvec(decode_to_polyvec::<N, K>(c1, du), du, self.q);
         let v = decompress_poly(decode_to_poly(c2, dv), dv, self.q);
         let s = decode_to_polyvec(sk.clone(), 12);
 
-        let u_hat = ntt_vec(&u);
-        let x = ntt_product_vec(&s, &u_hat);
-        let p = v.sub(&x);
+        let m = v.sub(&ntt_product_vec(&s, &ntt_vec(&u)));
 
-        encode_poly(compress_poly(p, 1, self.q), 1)
+        encode_poly(compress_poly(m, 1, self.q), 1)
     }
 
     pub const fn init(q: usize, eta: (usize, usize), d: (usize, usize)) -> Self {
-        Self { q, eta, d }
+        Self { eta, q, d }
     }
 }
 

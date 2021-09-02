@@ -106,8 +106,8 @@ pub fn ntt_product_matvec<const N: usize, const X: usize, const Y: usize>(
 /// Number theoretic Transform on vectors
 pub fn ntt_vec<const N: usize, const D: usize>(p: &PolyVec3329<N, D>) -> PolyVec3329<N, D> {
     let mut coeffs = [Default::default(); D];
-    for i in 0..D {
-        coeffs[i] = base_ntt(&p.coefficients[i]);
+    for (i, el) in coeffs.iter_mut().enumerate() {
+        *el = base_ntt(&p.coefficients[i]);
     }
     PolyVec3329::from_vec(coeffs)
 }
@@ -115,8 +115,8 @@ pub fn ntt_vec<const N: usize, const D: usize>(p: &PolyVec3329<N, D>) -> PolyVec
 /// Reverse NTT on vectors
 fn rev_ntt_vec<const N: usize, const D: usize>(p_hat: &PolyVec3329<N, D>) -> PolyVec3329<N, D> {
     let mut coeffs = [Default::default(); D];
-    for i in 0..D {
-        coeffs[i] = rev_ntt(&p_hat.coefficients[i]);
+    for (i, el) in coeffs.iter_mut().enumerate() {
+        *el = rev_ntt(&p_hat.coefficients[i]);
     }
     PolyVec3329::from_vec(coeffs)
 }

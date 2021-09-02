@@ -12,10 +12,10 @@ use crate::structures::{
 pub fn decode_to_poly<const N: usize>(bs: ByteArray, ell: usize) -> Poly3329<N> {
     let mut f = [F3329::zero(); N];
 
-    for i in 0..N {
+    for (i, el) in f.iter_mut().enumerate() {
         for j in 0..ell {
             if bs.get_bit(i * ell + j) {
-                f[i] = f[i].add(&F3329::from_int(1 << j));
+                *el = el.add(&F3329::from_int(1 << j));
             }
         }
     }
@@ -24,26 +24,26 @@ pub fn decode_to_poly<const N: usize>(bs: ByteArray, ell: usize) -> Poly3329<N> 
 
 /// Serialize Poly into ByteArray
 pub fn encode_poly<const N: usize>(p: Poly3329<N>, ell: usize) -> ByteArray {
-    let mut b = vec![];
-    let mut c: u8 = 0;
+    let mut buf = vec![];
+    let mut val: u8 = 0;
 
-    for i in 0..256 {
+    for i in 0..N {
         let mut v = p[i].to_int();
         for j in 0..ell {
             let s = (i * ell + j) % 8;
             if s == 0 && !(i == 0 && j == 0) {
-                b.push(c);
-                c = 0;
+                buf.push(val);
+                val = 0;
             }
             if (v & 1) == 1 {
-                let a = 1 << s;
-                c += a as u8;
+                let power = 1 << s;
+                val += power as u8;
             }
             v >>= 1;
         }
     }
-    b.push(c);
-    ByteArray::from_bytes(b.as_slice())
+    buf.push(val);
+    ByteArray::from_bytes(buf.as_slice())
 }
 
 /// Deserialize ByteArray into PolyVec
@@ -51,7 +51,7 @@ pub fn decode_to_polyvec<const N: usize, const D: usize>(
     bs: ByteArray,
     ell: usize,
 ) -> PolyVec3329<N, D> {
-    let k = bs.data.len() / (32 * ell);
+    // let k = bs.data.len() / (32 * ell);
     let mut b = bs;
     let mut p_vec = PolyVec3329::from_vec([Poly3329::init(); D]);
 

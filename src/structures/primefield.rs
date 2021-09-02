@@ -259,7 +259,7 @@ impl FiniteField for PrimeField3329 {
 
     fn mul(&self, other: &Self) -> Self {
         Self {
-            val: (&self.val * &other.val) % Self::order(),
+            val: (self.val * other.val) % Self::order(),
         }
     }
 
@@ -301,7 +301,7 @@ impl PrimeField3329 {
         Self { val: (x + o) % o }
     }
 
-    pub const fn to_int(&self) -> usize {
+    pub const fn to_int(self) -> usize {
         self.val
     }
 }

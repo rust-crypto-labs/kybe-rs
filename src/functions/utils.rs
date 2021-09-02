@@ -16,8 +16,8 @@ pub fn parse<const N: usize>(bs: &ByteArray, q: usize) -> Poly3329<N> {
     let mut p = Poly3329::init();
 
     while j < N {
-        let d_1 = (bs.data[i] as usize) + ((bs.data[i + 1] & mask) as usize) << 8;
-        let d_2 = ((bs.data[i+1] >> 4) as usize) + (bs.data[i + 2] as usize) << 4;
+        let d_1 = (bs.data[i] as usize) + (((bs.data[i + 1] & mask) as usize) << 8);
+        let d_2 = ((bs.data[i + 1] >> 4) as usize) + ((bs.data[i + 2] as usize) << 4);
         if d_1 < q {
             p.set_coeff(j, F3329::from_int(d_1));
             j += 1;

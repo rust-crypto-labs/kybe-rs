@@ -58,7 +58,7 @@ impl ByteArray {
     pub fn get_bit(&self, pos: usize) -> bool {
         let (index, offset) = (pos / 8, pos % 8);
         let mask = 1 << offset;
-        !((self.data[index] & mask) == 0)
+        (self.data[index] & mask) != 0
     }
 
     /// Trim the ByteArray from the first num bytes
