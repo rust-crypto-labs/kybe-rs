@@ -37,7 +37,7 @@ pub fn parse<const N: usize>(bs: &ByteArray, q: usize) -> Poly3329<N> {
 /// Takes as input an array of 64 eta bytes
 pub fn cbd<const N: usize>(bs: ByteArray, eta: usize) -> Poly3329<N> {
     let mut p = Poly3329::init();
-    for i in 0..256 {
+    for i in 0..N {
         let mut a = 0;
         let mut b = 0;
 

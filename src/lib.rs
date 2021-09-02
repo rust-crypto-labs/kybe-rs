@@ -63,20 +63,22 @@ use pke::PKE;
 
 /// Instantiate the Kyber 512 PKE with the appropriate parameters
 pub const fn kyber512pke() -> PKE<256, 2> {
-    PKE::<256, 2>::init(3329, 2, 10, 3)
+    PKE::<256, 2>::init(3329, (3, 2), (10, 4))
 }
 
 /// Instantiate the Kyber 512 KEM with the appropriate parameters
 pub const fn kyber512kem() -> KEM<256, 2> {
-    KEM::<256, 2>::init(kyber512pke(), 178, 800, 1632, 738)
+    let pke = kyber512pke();
+    KEM::<256, 2>::init(pke, 139, 32, pke.d)
 }
 
 /// Instantiate the Kyber 768 PKE with the appropriate parameters
 pub const fn kyber768pke() -> PKE<256, 3> {
-    PKE::<256, 3>::init(3329, 2, 10, 4)
+    PKE::<256, 3>::init(3329, (2, 2), (10, 4))
 }
 
 /// Instantiate the Kyber 768 KEM with the appropriate parameters
 pub const fn kyber768kem() -> KEM<256, 3> {
-    KEM::<256, 3>::init(kyber768pke(), 164, 1184, 2400, 1088)
+    let pke = kyber768pke();
+    KEM::<256, 3>::init(pke, 164, 32, pke.d)
 }
