@@ -82,3 +82,14 @@ pub const fn kyber768kem() -> KEM<256, 3> {
     let pke = kyber768pke();
     KEM::<256, 3>::init(pke, 164, 32, pke.d)
 }
+
+/// Instantiate the Kyber 1024 PKE with the appropriate parameters
+pub const fn kyber1024pke() -> PKE<256, 4> {
+    PKE::<256, 4>::init(3329, (2, 2), (11, 5))
+}
+
+/// Instantiate the Kyber 1024 KEM with the appropriate parameters
+pub const fn kyber1024kem() -> KEM<256, 4> {
+    let pke = kyber1024pke();
+    KEM::<256, 4>::init(pke, 174, 32, pke.d)
+}

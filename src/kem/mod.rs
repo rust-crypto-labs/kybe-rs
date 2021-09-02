@@ -91,6 +91,12 @@ fn kem_keygen_ccakem_768() {
 }
 
 #[test]
+fn kem_keygen_ccakem_1024() {
+    let kem = crate::kyber1024kem();
+    kem.keygen();
+}
+
+#[test]
 fn encapsulate_then_decapsulate_ccakem_512() {
     let kem = crate::kyber512kem();
 
@@ -103,6 +109,16 @@ fn encapsulate_then_decapsulate_ccakem_512() {
 #[test]
 fn encapsulate_then_decapsulate_ccakem_768() {
     let kem = crate::kyber768kem();
+
+    let (sk, pk) = kem.keygen();
+    let (ctx, shk) = kem.encaps(&pk);
+    let shk2 = kem.decaps(&ctx, &sk);
+    assert_eq!(shk, shk2);
+}
+
+#[test]
+fn encapsulate_then_decapsulate_ccakem_1024() {
+    let kem = crate::kyber1024kem();
 
     let (sk, pk) = kem.keygen();
     let (ctx, shk) = kem.encaps(&pk);
