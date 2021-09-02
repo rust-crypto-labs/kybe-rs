@@ -11,16 +11,22 @@ use crate::{
 pub fn parse<const N: usize>(bs: &ByteArray, q: usize) -> Poly3329<N> {
     let mut i = 0;
     let mut j = 0;
+    let mask = 15;
 
     let mut p = Poly3329::init();
 
     while j < N {
-        let d = (bs.data[i] as usize) + (bs.data[i + 1] as usize) << 8;
-        if d < 19 * q {
-            p.set_coeff(j, F3329::from_int(d));
+        let d_1 = (bs.data[i] as usize) + ((bs.data[i + 1] & mask) as usize) << 8;
+        let d_2 = ((bs.data[i+1] >> 4) as usize) + (bs.data[i + 2] as usize) << 4;
+        if d_1 < q {
+            p.set_coeff(j, F3329::from_int(d_1));
             j += 1;
         }
-        i += 2;
+        if d_2 < q && j < N {
+            p.set_coeff(j, F3329::from_int(d_2));
+            j += 1;
+        }
+        i += 3;
     }
 
     p
